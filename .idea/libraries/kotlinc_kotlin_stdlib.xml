@@ -10,9 +10,9 @@
     </ANNOTATIONS>
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib-jdk8/1.7.20-dev-657/kotlin-stdlib-jdk8-1.7.20-dev-657.jar!/" />
-      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib/1.7.20-dev-657/kotlin-stdlib-1.7.20-dev-657.jar!/" />
       <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib-common/1.7.20-dev-657/kotlin-stdlib-common-1.7.20-dev-657.jar!/" />
       <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib-jdk7/1.7.20-dev-657/kotlin-stdlib-jdk7-1.7.20-dev-657.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/jetbrains/kotlin/kotlin-stdlib/1.7.20-dev-657/kotlin-stdlib.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
