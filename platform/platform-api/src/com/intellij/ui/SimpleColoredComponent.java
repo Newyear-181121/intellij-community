@@ -288,6 +288,7 @@ public class SimpleColoredComponent extends JComponent implements Accessible, Co
   }
 
   /**
+   * “离开”（内部）组件的内部填充
    * @return "leave" (internal) internal paddings of the component
    */
   @NotNull

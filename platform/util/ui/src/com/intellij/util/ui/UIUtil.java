@@ -2771,6 +2771,10 @@ public final class UIUtil {
     }
   };
 
+  /**
+   * 添加撤消重做操作
+   * @param textComponent
+   */
   public static void addUndoRedoActions(final @NotNull JTextComponent textComponent) {
     if (textComponent.getClientProperty(UNDO_MANAGER) instanceof UndoManager) {
       return;

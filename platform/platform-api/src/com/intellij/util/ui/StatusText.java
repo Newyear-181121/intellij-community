@@ -130,6 +130,11 @@ public abstract class StatusText {
     attachTo(owner, owner);
   }
 
+  /**
+   * 附加到
+   * @param owner
+   * @param mouseTarget
+   */
   public void attachTo(@Nullable Component owner, @Nullable Component mouseTarget) {
     if (myMouseTarget != null) {
       myClickListener.uninstall(myMouseTarget);
@@ -342,7 +347,13 @@ public abstract class StatusText {
     return appendText(true, myPrimaryColumn.fragments.size(), icon, text, attrs, listener);
   }
 
+  /**
+   * 画
+   * @param owner
+   * @param g
+   */
   public void paint(Component owner, Graphics g) {
+    // 状态是不可见的
     if (!isStatusVisible()) {
       return;
     }
@@ -354,6 +365,11 @@ public abstract class StatusText {
     }
   }
 
+  /**
+   * 在视口下的组件上绘制
+   * @param component
+   * @param g
+   */
   private void paintOnComponentUnderViewport(Component component, Graphics g) {
     JBViewport viewport = ObjectUtils.tryCast(myOwner, JBViewport.class);
     if (viewport == null || viewport.getView() != component || viewport.isPaintingNow()) return;
@@ -384,6 +400,11 @@ public abstract class StatusText {
     }
   }
 
+  /**
+   * 绘制状态文本
+   * @param g
+   * @param bounds
+   */
   private void doPaintStatusText(@NotNull Graphics g, @NotNull Rectangle bounds) {
     paintColumnInBounds(myPrimaryColumn, g, getColumnLocation(true, bounds), bounds);
     paintColumnInBounds(mySecondaryColumn, g, getColumnLocation(false, bounds), bounds);

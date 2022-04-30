@@ -17,6 +17,9 @@ package com.intellij.util.ui;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 带有空文本的组件
+ */
 public interface ComponentWithEmptyText {
   @NotNull StatusText getEmptyText();
 }
