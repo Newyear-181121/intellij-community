@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 /**
+ * 文本编辑器包装
  * @author Alexander Lobas
  */
 public class TextEditorWrapper extends TextEditor {

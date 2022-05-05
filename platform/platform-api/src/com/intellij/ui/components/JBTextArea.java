@@ -80,6 +80,10 @@ public class JBTextArea extends JTextArea implements ComponentWithEmptyText {
     });
   }
 
+  /**
+   * 获取首选尺寸
+   * @return 尺寸大小的类
+   */
   @Override
   public Dimension getPreferredSize() {
     if (isPreferredSizeSet()) return super.getPreferredSize();
@@ -89,11 +93,16 @@ public class JBTextArea extends JTextArea implements ComponentWithEmptyText {
       width = Math.max(width, fontMetrics.stringWidth(line));
     }
     Dimension d = super.getPreferredSize();
+    // 容器边界
     Insets insets = getInsets();
     d.width = Math.min(d.width, width + insets.left + insets.right);
     return d;
   }
 
+  /**
+   * 将矩形滚动到可见
+   * @param r
+   */
   @Override
   public void scrollRectToVisible(Rectangle r) {
     JViewport viewport = ComponentUtil.getParentOfType((Class<? extends JViewport>)JViewport.class, (Component)this);

@@ -2773,12 +2773,13 @@ public final class UIUtil {
 
   /**
    * 添加撤消重做操作
-   * @param textComponent
+   * @param textComponent 文本组件， 只有文本组件才支持这个操作
    */
   public static void addUndoRedoActions(final @NotNull JTextComponent textComponent) {
     if (textComponent.getClientProperty(UNDO_MANAGER) instanceof UndoManager) {
       return;
     }
+    // 添加对应的属性，和对应的两个监听
 
     UndoManager undoManager = new UndoManager();
     textComponent.putClientProperty(UNDO_MANAGER, undoManager);
@@ -2791,6 +2792,11 @@ public final class UIUtil {
     textComponent.getActionMap().put("redoKeystroke", REDO_ACTION);
   }
 
+  /**
+   * 获取重做管理器
+   * @param component
+   * @return
+   */
   public static @Nullable UndoManager getUndoManager(Component component) {
     if (component instanceof JTextComponent) {
       Object o = ((JTextComponent)component).getClientProperty(UNDO_MANAGER);

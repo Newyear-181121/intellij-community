@@ -82,10 +82,11 @@ public final class ComponentUtil {
   }
 
   /**
+   * 从指定的组件开始在组件层次结构中进行搜索。请注意，还会检查初始组件。
    * Searches above in the component hierarchy starting from the specified component.
    * Note that the initial component is also checked.
    *
-   * @param type      expected class
+   * @param type      expected class  预期的类型
    * @param component initial component
    * @return a component of the specified type, or {@code null} if the search is failed
    * @see SwingUtilities#getAncestorOfClass
