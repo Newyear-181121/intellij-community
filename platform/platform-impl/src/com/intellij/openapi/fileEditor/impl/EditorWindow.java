@@ -64,6 +64,9 @@ import java.util.stream.IntStream;
 
 import static com.intellij.openapi.wm.IdeFocusManager.getGlobalInstance;
 
+/**
+ * 编辑器窗口
+ */
 public final class EditorWindow {
   private static final Logger LOG = Logger.getInstance(EditorWindow.class);
 
@@ -71,7 +74,13 @@ public final class EditorWindow {
   public static final Key<Boolean> HIDE_TABS = Key.create("HIDE_TABS");
 
   JPanel myPanel;
+  /**
+   * 编辑器选项卡的标签容器
+   */
   private final @NotNull EditorTabbedContainer myTabbedPane;
+  /**
+   * 编辑器分离器
+   */
   @NotNull
   private final EditorsSplitters myOwner;
 
@@ -122,6 +131,9 @@ public final class EditorWindow {
     updateTabsVisibility();
   }
 
+  /**
+   * 更新标签可见性
+   */
   void updateTabsVisibility() {
     updateTabsVisibility(UISettings.getInstance());
   }
@@ -151,6 +163,9 @@ public final class EditorWindow {
     });
   }
 
+  /**
+   * 处置
+   */
   void dispose() {
     try {
       myOwner.removeWindow(this);
@@ -164,18 +179,34 @@ public final class EditorWindow {
     return myIsDisposed;
   }
 
+  /**
+   * 关闭文件
+   * @param file
+   */
   public void closeFile(@NotNull VirtualFile file) {
     closeFile(file, true);
   }
 
+  /**
+   * 关闭文件
+   * @param file
+   * @param disposeIfNeeded 必要时处置
+   */
   public void closeFile(@NotNull VirtualFile file, boolean disposeIfNeeded) {
     closeFile(file, disposeIfNeeded, true);
   }
 
+  /**
+   * 已关闭标签页
+   * @return
+   */
   boolean hasClosedTabs() {
     return !myRemovedTabs.empty();
   }
 
+  /**
+   * 恢复关闭的选项卡
+   */
   void restoreClosedTab() {
     assert hasClosedTabs() : "Nothing to restore";
 
@@ -189,8 +220,15 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 关闭文件
+   * @param file
+   * @param disposeIfNeeded  必要时处置 （默认方法会处理）
+   * @param transferFocus  转移焦点
+   */
   public void closeFile(@NotNull VirtualFile file, boolean disposeIfNeeded, boolean transferFocus) {
     FileEditorManagerImpl editorManager = getManager();
+    // 运行批量选项卡更改
     FileEditorManagerImpl.runBulkTabChange(myOwner, splitters -> {
       List<EditorComposite> composites = splitters.getAllComposites(file);
       if (!isDisposed() && composites.isEmpty()) return;
@@ -253,6 +291,9 @@ public final class EditorWindow {
     });
   }
 
+  /**
+   * 从分离器中移除
+   */
   void removeFromSplitter() {
     if (!inSplitter()) return;
 
@@ -292,6 +333,12 @@ public final class EditorWindow {
     dispose();
   }
 
+  /**
+   * 计算要选择的索引
+   * @param fileBeingClosed
+   * @param fileIndex
+   * @return
+   */
   int calcIndexToSelect(@NotNull VirtualFile fileBeingClosed, int fileIndex) {
     int currentlySelectedIndex = myTabbedPane.getSelectedIndex();
     if (currentlySelectedIndex != fileIndex) {
@@ -336,10 +383,20 @@ public final class EditorWindow {
     return myTabbedPane.getTabCount();
   }
 
+  /**
+   * 将前景设置为
+   * @param index
+   * @param color
+   */
   void setForegroundAt(int index, @NotNull Color color) {
     myTabbedPane.setForegroundAt(index, color);
   }
 
+  /**
+   * 设置文本属性
+   * @param index
+   * @param attributes
+   */
   void setTextAttributes(int index, @Nullable TextAttributes attributes) {
     myTabbedPane.setTextAttributes(index, attributes);
   }
@@ -352,27 +409,51 @@ public final class EditorWindow {
     myTabbedPane.setBackgroundColorAt(index, color);
   }
 
+  /**
+   * 将工具提示文本设置为
+   * @param index
+   * @param text
+   */
   private void setToolTipTextAt(int index, @Nullable @NlsContexts.Tooltip String text) {
     myTabbedPane.setToolTipTextAt(index, text);
   }
 
-
+  /**
+   * 设置选项卡布局策略
+   * @param policy
+   */
   void setTabLayoutPolicy(int policy) {
     myTabbedPane.setTabLayoutPolicy(policy);
   }
 
+  /**
+   * 设置标签放置
+   * @param tabPlacement
+   */
   void setTabsPlacement(int tabPlacement) {
     myTabbedPane.setTabPlacement(tabPlacement);
   }
 
+  /**
+   * 更新选项卡布局
+   * @param newTabsLayoutInfo
+   */
   void updateTabsLayout(@NotNull TabsLayoutInfo newTabsLayoutInfo) {
     myTabbedPane.updateTabsLayout(newTabsLayoutInfo);
   }
 
+  /**
+   * 设置为当前窗口
+   * @param requestFocus
+   */
   public void setAsCurrentWindow(boolean requestFocus) {
     myOwner.setCurrentWindow(this, requestFocus);
   }
 
+  /**
+   * 更新文件背景颜色
+   * @param file
+   */
   void updateFileBackgroundColor(@NotNull VirtualFile file) {
     int index = findFileEditorIndex(file);
     if (index != -1) {
@@ -393,19 +474,34 @@ public final class EditorWindow {
     return myPanel.getSize();
   }
 
+  /**
+   * 获取选项卡式窗格
+   * @return
+   */
   public @NotNull EditorTabbedContainer getTabbedPane() {
     return myTabbedPane;
   }
 
+  /**
+   * 请求焦点
+   * @param forced
+   */
   public void requestFocus(boolean forced) {
     myTabbedPane.requestFocus(forced);
   }
 
+  /**
+   * 到前面
+   */
   public void toFront() {
     Window window = ComponentUtil.getWindow(myTabbedPane.getComponent());
     UIUtil.toFront(window);
   }
 
+  /**
+   * 比较
+   * <br/>  数据提供者,  编辑器窗架
+   */
   protected static class TComp extends JPanel implements DataProvider, EditorWindowHolder {
     final @NotNull EditorComposite myComposite;
     protected final EditorWindow myWindow;
@@ -420,6 +516,7 @@ public final class EditorWindow {
         public void focusGained(FocusEvent e) {
           ApplicationManager.getApplication().invokeLater(() -> {
             if (!hasFocus()) return;
+            //  获得首选的重点组件
             JComponent focus = myComposite.getSelectedWithProvider().getFileEditor().getPreferredFocusedComponent();
             if (focus != null && !focus.hasFocus()) {
               getGlobalInstance().requestFocus(focus, true);
@@ -427,7 +524,14 @@ public final class EditorWindow {
           });
         }
       });
+      // 设置焦点遍历策略
       setFocusTraversalPolicy(new FocusTraversalPolicy() {
+        /**
+         * 获取组件之后
+         * @param aContainer
+         * @param aComponent
+         * @return
+         */
         @Override
         public Component getComponentAfter(Container aContainer, Component aComponent) {
           return myComposite.getFocusComponent();
@@ -438,6 +542,11 @@ public final class EditorWindow {
           return myComposite.getFocusComponent();
         }
 
+        /**
+         * 获取第一个组件
+         * @param aContainer
+         * @return
+         */
         @Override
         public Component getFirstComponent(Container aContainer) {
           return myComposite.getFocusComponent();
@@ -448,19 +557,34 @@ public final class EditorWindow {
           return myComposite.getFocusComponent();
         }
 
+        /**
+         * 获取默认组件
+         * @param aContainer
+         * @return
+         */
         @Override
         public Component getDefaultComponent(Container aContainer) {
           return myComposite.getFocusComponent();
         }
       });
+      // 设置焦点循环根
       setFocusCycleRoot(true);
     }
 
+    /**
+     * 获取编辑器窗口
+     * @return
+     */
     @Override
     public @NotNull EditorWindow getEditorWindow() {
       return myWindow;
     }
 
+    /**
+     * 获取数据
+     * @param dataId the data identifier for which the value is requested. 数据标识符
+     * @return
+     */
     @Override
     public Object getData(@NotNull String dataId) {
       if (CommonDataKeys.VIRTUAL_FILE.is(dataId)){
@@ -474,11 +598,15 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 检查一致性
+   */
   private void checkConsistency() {
     LOG.assertTrue(myOwner.containsWindow(this), "EditorWindow not in collection");
   }
 
   /**
+   * 获取选定的编辑器
    * @deprecated Use {@link #getSelectedComposite}
    */
   @Deprecated
@@ -486,6 +614,10 @@ public final class EditorWindow {
     return (EditorWithProviderComposite)getSelectedComposite(false);
   }
 
+  /**
+   * 获得选定的编辑器组件
+   * @return
+   */
   public @Nullable EditorComposite getSelectedComposite() {
     return getSelectedComposite(false);
   }
@@ -507,6 +639,10 @@ public final class EditorWindow {
     return comp == null ? null : comp.myComposite;
   }
 
+  /**
+   * 获取所有的组件
+   * @return
+   */
   public @NotNull List<@NotNull EditorComposite> getAllComposites() {
     return IntStream.range(0, getTabCount()).mapToObj(i -> getCompositeAt(i))
       .collect(Collectors.toList());
@@ -727,6 +863,7 @@ public final class EditorWindow {
   }
 
   /**
+   * 尝试从选定的编辑器中为给定的编辑器设置插入符号和视口
    * Tries to setup caret and viewport for the given editor from the selected one.
    *
    * @param toSync    editor to setup caret and viewport for
@@ -793,6 +930,10 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 获取相邻的编辑器
+   * @return
+   */
   @NotNull
   public Map<RelativePosition, EditorWindow> getAdjacentEditors() {
     checkConsistency();
@@ -872,6 +1013,9 @@ public final class EditorWindow {
     };
   }
 
+  /**
+   * 我的分裂画家
+   */
   private final class MySplitPainter extends AbstractPainter {
     private Shape myRectangle = getTabbedPane().getTabs().getDropArea();
     private boolean myShowInfoPanel;
@@ -954,6 +1098,10 @@ public final class EditorWindow {
       }
     }
 
+    /**
+     * 位置改变
+     * @param position
+     */
     private void positionChanged(RelativePosition position) {
       if (myPosition == position) {
         return;
@@ -969,6 +1117,9 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 分离器服务
+   */
   @Service
   public static final class SplitterService {
     private EditorWindow myActiveWindow = null;
@@ -976,6 +1127,12 @@ public final class EditorWindow {
     private Runnable mySplitChooserDisposer = null;
     private EditorWindow myInitialEditorWindow = null;
 
+    /**
+     * 激活拆分选择器
+     * @param window
+     * @param file
+     * @param openedFromEditor
+     */
     public void activateSplitChooser(@NotNull EditorWindow window, @NotNull VirtualFile file, boolean openedFromEditor) {
       if (isActive()) {
         stopSplitChooser(true);
@@ -988,6 +1145,10 @@ public final class EditorWindow {
       mySplitChooserDisposer = myActiveWindow.showSplitChooser(true);
     }
 
+    /**
+     * 切换窗口
+     * @param window
+     */
     public void switchWindow(@NotNull EditorWindow window) {
       if (mySplitChooserDisposer != null) {
         mySplitChooserDisposer.run();
@@ -996,6 +1157,10 @@ public final class EditorWindow {
       mySplitChooserDisposer = myActiveWindow.showSplitChooser(false);
     }
 
+    /**
+     * 停止拆分选择器
+     * @param interrupted
+     */
     public void stopSplitChooser(boolean interrupted) {
       EditorWindow activeWindow = myActiveWindow;
       myActiveWindow = null;
@@ -1026,6 +1191,9 @@ public final class EditorWindow {
       switchWindow(orderedWindows.get(index));
     }
 
+    /**
+     * 上一个窗口
+     */
     public void previousWindow() {
       if (!isActive()) {
         return;
@@ -1080,6 +1248,9 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 改变方向
+   */
   void changeOrientation() {
     checkConsistency();
     Container parent = myPanel.getParent();
@@ -1089,11 +1260,21 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 查找文件编辑器索引
+   * @param file
+   * @return
+   */
   private int findFileEditorIndex(@NotNull VirtualFile file) {
     @Nullable EditorComposite composite = getComposite(file);
     return composite == null ? -1 : findCompositeIndex(composite);
   }
 
+  /**
+   * 更新文件图标
+   * @param file
+   * @param icon
+   */
   void updateFileIcon(@NotNull VirtualFile file, @NotNull Icon icon) {
     EditorComposite composite = getComposite(file);
     if (composite == null) return;
@@ -1102,6 +1283,10 @@ public final class EditorWindow {
     myTabbedPane.setIconAt(index, decorateFileIcon(composite, icon));
   }
 
+  /**
+   * 更新文件名
+   * @param file
+   */
   void updateFileName(@NotNull VirtualFile file) {
     int index = findFileEditorIndex(file);
     if (index == -1) return;
@@ -1115,6 +1300,12 @@ public final class EditorWindow {
     setToolTipTextAt(index, UISettings.getInstance().getShowTabsTooltips() ? getManager().getFileTooltipText(file) : null);
   }
 
+  /**
+   * 装饰文件图标
+   * @param composite
+   * @param baseIcon
+   * @return
+   */
   @Nullable
   private static Icon decorateFileIcon(@NotNull EditorComposite composite, @NotNull Icon baseIcon) {
     UISettings settings = UISettings.getInstance();
@@ -1137,6 +1328,10 @@ public final class EditorWindow {
     return JBUIScale.scaleIcon(result);
   }
 
+  /**
+   * 不拆分
+   * @param setCurrent
+   */
   public void unsplit(boolean setCurrent) {
     checkConsistency();
     Container splitter = myPanel.getParent();
@@ -1183,6 +1378,11 @@ public final class EditorWindow {
     normalizeProportionsIfNeed(myPanel);
   }
 
+  /**
+   * 处理兄弟组合
+   * @param composite
+   * @param openOptions
+   */
   private void processSiblingComposite(@NotNull EditorComposite composite,
                                        @NotNull FileEditorOpenOptions openOptions) {
     if (getTabCount() < UISettings.getInstance().getState().getEditorTabLimit() &&
@@ -1201,11 +1401,19 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 在分流器中
+   * @return
+   */
   public boolean inSplitter() {
     checkConsistency();
     return myPanel.getParent() instanceof Splitter;
   }
 
+  /**
+   * 获取选定文件
+   * @return
+   */
   public VirtualFile getSelectedFile() {
     checkConsistency();
     EditorComposite composite = getSelectedComposite();
@@ -1213,6 +1421,7 @@ public final class EditorWindow {
   }
 
   /**
+   * 查找文件组合
    * @deprecated Use {@link #getComposite(VirtualFile)}
    */
   @Deprecated
@@ -1220,6 +1429,11 @@ public final class EditorWindow {
     return (EditorWithProviderComposite)getComposite(file);
   }
 
+  /**
+   * 获取组件
+   * @param file
+   * @return
+   */
   public @Nullable EditorComposite getComposite(@NotNull VirtualFile file) {
     if (file instanceof BackedVirtualFile) {
       file = ((BackedVirtualFile)file).getOriginFile();
@@ -1234,7 +1448,11 @@ public final class EditorWindow {
     return null;
   }
 
-
+  /**
+   * 查找组件索引
+   * @param component
+   * @return
+   */
   private int findComponentIndex(@NotNull Component component) {
     for (int i = 0; i != getTabCount(); ++i) {
       EditorComposite composite = getCompositeAt(i);
@@ -1245,6 +1463,10 @@ public final class EditorWindow {
     return -1;
   }
 
+  /**
+   * 查找预览索引
+   * @return
+   */
   private int findPreviewIndex() {
     for (int i = getTabCount() - 1; i >= 0; --i) {
       EditorComposite composite = getCompositeAt(i);
@@ -1255,6 +1477,11 @@ public final class EditorWindow {
     return -1;
   }
 
+  /**
+   * 查组件索引
+   * @param composite
+   * @return
+   */
   int findCompositeIndex(@NotNull EditorComposite composite) {
     for (int i = 0; i != getTabCount(); ++i) {
       EditorComposite compositeAt = getCompositeAt(i);
@@ -1265,6 +1492,11 @@ public final class EditorWindow {
     return -1;
   }
 
+  /**
+   * 查找文件索引
+   * @param fileToFind
+   * @return
+   */
   int findFileIndex(@NotNull VirtualFile fileToFind) {
     for (int i = 0; i != getTabCount(); ++i) {
       VirtualFile file = getFileAt(i);
@@ -1275,15 +1507,30 @@ public final class EditorWindow {
     return -1;
   }
 
+  /**
+   * 根据索引获取组件
+   * @param i
+   * @return
+   */
   @NotNull
   private EditorComposite getCompositeAt(int i) {
     return ((TComp)myTabbedPane.getComponentAt(i)).myComposite;
   }
 
+  /**
+   * 文件是否打开
+   * @param file
+   * @return
+   */
   public boolean isFileOpen(@NotNull VirtualFile file) {
     return getComposite(file) != null;
   }
 
+  /**
+   * 文件是否固定
+   * @param file
+   * @return
+   */
   public boolean isFilePinned(@NotNull VirtualFile file) {
     EditorComposite composite = getComposite(file);
     if (composite == null) {
@@ -1292,6 +1539,11 @@ public final class EditorWindow {
     return composite.isPinned();
   }
 
+  /**
+   * 设置文件固定
+   * @param file
+   * @param pinned
+   */
   public void setFilePinned(@NotNull VirtualFile file, boolean pinned) {
     EditorComposite composite = getComposite(file);
     if (composite == null) {
@@ -1308,6 +1560,11 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 修剪大小
+   * @param fileToIgnore
+   * @param transferFocus
+   */
   void trimToSize(@Nullable VirtualFile fileToIgnore, boolean transferFocus) {
     getManager().getReady(this).doWhenDone(() -> {
       if (!isDisposed()) {
@@ -1316,6 +1573,12 @@ public final class EditorWindow {
     });
   }
 
+  /**
+   * 修剪大小
+   * @param fileToIgnore
+   * @param closeNonModifiedFilesFirst
+   * @param transferFocus
+   */
   private void doTrimSize(@Nullable VirtualFile fileToIgnore, boolean closeNonModifiedFilesFirst, boolean transferFocus) {
     int limit = getTabLimit();
     Set<VirtualFile> closingOrder = getTabClosingOrder(closeNonModifiedFilesFirst);
@@ -1343,6 +1606,10 @@ public final class EditorWindow {
     }
   }
 
+  /**
+   * 获取标签限制
+   * @return
+   */
   public static int getTabLimit() {
     int limit = UISettings.getInstance().getEditorTabLimit();
     if (ToggleDistractionFreeModeAction.isDistractionFreeModeEnabled()
@@ -1352,6 +1619,11 @@ public final class EditorWindow {
     return limit;
   }
 
+  /**
+   * 获取标签关闭顺序
+   * @param closeNonModifiedFilesFirst
+   * @return
+   */
   private @NotNull Set<VirtualFile> getTabClosingOrder(boolean closeNonModifiedFilesFirst) {
     VirtualFile[] allFiles = getFiles();
     List<VirtualFile> histFiles = EditorHistoryManager.getInstance(getManager().getProject()).getFileList();
@@ -1400,6 +1672,12 @@ public final class EditorWindow {
     return closingOrder;
   }
 
+  /**
+   * 应该关闭选定
+   * @param file
+   * @param fileToIgnore
+   * @return
+   */
   private boolean shouldCloseSelected(@NotNull VirtualFile file, @Nullable VirtualFile fileToIgnore) {
     if (!UISettings.getInstance().getReuseNotModifiedTabs() || !myOwner.getManager().getProject().isInitialized()) {
       return false;
@@ -1421,6 +1699,11 @@ public final class EditorWindow {
     return !myOwner.getManager().isChanged(composite);
   }
 
+  /**
+   * 是所有选项卡固定
+   * @param fileToIgnore
+   * @return
+   */
   private boolean areAllTabsPinned(@Nullable VirtualFile fileToIgnore) {
     for (int i = myTabbedPane.getTabCount() - 1; i >= 0; i--) {
       if (fileCanBeClosed(getFileAt(i), fileToIgnore)) {
@@ -1430,6 +1713,12 @@ public final class EditorWindow {
     return true;
   }
 
+  /**
+   * 应该保留预览
+   * @param file
+   * @param options
+   * @return
+   */
   private boolean shouldReservePreview(@NotNull VirtualFile file,
                                        @NotNull FileEditorOpenOptions options) {
     if (!UISettings.getInstance().getOpenInPreviewTabIfPossible()) {
@@ -1450,6 +1739,12 @@ public final class EditorWindow {
     return hasClientPropertyInHierarchy(focusOwner, FileEditorManagerImpl.OPEN_IN_PREVIEW_TAB);
   }
 
+  /**
+   * 在层次结构中有客户端属性
+   * @param owner
+   * @param propertyKey
+   * @return
+   */
   private static boolean hasClientPropertyInHierarchy(@Nullable Component owner,
                                                       @SuppressWarnings("SameParameterValue") @NotNull Key<Boolean> propertyKey) {
     Component parent = JBIterable.generate(owner, child -> child.getParent()).find(component -> {
@@ -1461,14 +1756,30 @@ public final class EditorWindow {
     return parent != null;
   }
 
+  /**
+   * 默认关闭文件
+   * @param file
+   * @param transferFocus
+   */
   private void defaultCloseFile(@NotNull VirtualFile file, boolean transferFocus) {
     closeFile(file, true, transferFocus);
   }
 
+  /**
+   * 文件可以关闭
+   * @param file
+   * @param fileToIgnore
+   * @return
+   */
   private boolean fileCanBeClosed(@NotNull VirtualFile file, @Nullable VirtualFile fileToIgnore) {
     return isFileOpen(file) && !file.equals(fileToIgnore) && !isFilePinned(file);
   }
 
+  /**
+   * 通过索引获取文件
+   * @param i
+   * @return
+   */
   @NotNull VirtualFile getFileAt(int i) {
     return getCompositeAt(i).getFile();
   }

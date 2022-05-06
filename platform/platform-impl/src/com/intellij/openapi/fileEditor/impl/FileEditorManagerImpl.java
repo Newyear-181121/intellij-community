@@ -110,6 +110,7 @@ import static com.intellij.openapi.actionSystem.IdeActions.ACTION_OPEN_IN_NEW_WI
 import static com.intellij.openapi.actionSystem.IdeActions.ACTION_OPEN_IN_RIGHT_SPLIT;
 
 /**
+ * 文件编辑器管理器
  * @author Anton Katilin
  * @author Eugene Belyaev
  * @author Vladimir Kondratyev
@@ -435,6 +436,11 @@ public class FileEditorManagerImpl extends FileEditorManagerEx implements Persis
     return false;
   }
 
+  /**
+   * 获取文件工具提示文本
+   * @param file
+   * @return
+   */
   public @NotNull @NlsContexts.Tooltip String getFileTooltipText(@NotNull VirtualFile file) {
     List<EditorTabTitleProvider> availableProviders = DumbService.getDumbAwareExtensions(myProject, EditorTabTitleProvider.EP_NAME);
     for (EditorTabTitleProvider provider : availableProviders) {

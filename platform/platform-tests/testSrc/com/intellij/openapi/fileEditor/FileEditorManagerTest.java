@@ -36,6 +36,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 文件编辑器管理器测试类
+ */
 public class FileEditorManagerTest extends FileEditorManagerTestCase {
 
   public void testTabOrder() throws Exception {
@@ -156,6 +159,14 @@ public class FileEditorManagerTest extends FileEditorManagerTestCase {
     VirtualFile file1 = getFile("/src/2.txt");
     myManager.openFile(file1, true);
     assertEquals(MyFileEditorProvider.NAME, myManager.getSelectedEditor(file).getName());
+
+    JFrame frame = new JFrame();
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.add(editors[0].getComponent());
+    frame.setSize(640, 480);
+    frame.setVisible(true);
+
+    System.out.println(editors[0].getName());
   }
 
   public void testWindowClosingRetainsOtherWindows() {
@@ -163,6 +174,11 @@ public class FileEditorManagerTest extends FileEditorManagerTestCase {
     assertNotNull(file);
     myManager.openFile(file, false);
     EditorWindow primaryWindow = myManager.getCurrentWindow();
+    JFrame frame = new JFrame();
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.add(primaryWindow.getSelectedComposite().getComponent());
+    frame.setSize(640, 480);
+    frame.setVisible(true);
     assertNotNull(primaryWindow);
     myManager.createSplitter(SwingConstants.VERTICAL, primaryWindow);
     EditorWindow secondaryWindow = myManager.getNextWindow(primaryWindow);
