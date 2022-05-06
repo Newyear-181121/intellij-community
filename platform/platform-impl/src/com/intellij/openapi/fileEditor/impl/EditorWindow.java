@@ -980,6 +980,12 @@ public final class EditorWindow {
   }
 
   private MySplitPainter myPainter = null;
+
+  /**
+   * 显示拆分选择器
+   * @param showInfoPanel
+   * @return
+   */
   private Runnable showSplitChooser(boolean showInfoPanel) {
     myPainter = new MySplitPainter(showInfoPanel);
 
@@ -1044,6 +1050,11 @@ public final class EditorWindow {
       }
     }
 
+    /**
+     * 绘制信息面板
+     * @param component
+     * @param g
+     */
     private void drawInfoPanel(Component component, Graphics2D g) {
       int centerX = myRectangle.getBounds().x + myRectangle.getBounds().width / 2;
       int centerY = myRectangle.getBounds().y + myRectangle.getBounds().height / 2;

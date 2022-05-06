@@ -71,6 +71,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 编辑器选项卡式容器
+ */
 public final class EditorTabbedContainer implements CloseAction.CloseTarget {
   private final EditorWindow myWindow;
   private final Project myProject;
@@ -143,21 +146,46 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     }
   }
 
+  /**
+   * 获取标签数量
+   * @return
+   */
   public int getTabCount() {
     return myTabs.getTabCount();
   }
 
+  /**
+   * 设置选定索引
+   * @param indexToSelect
+   * @return
+   */
   @NotNull
   public ActionCallback setSelectedIndex(int indexToSelect) {
     return setSelectedIndex(indexToSelect, true);
   }
 
+  /**
+   * 设置选定索引
+   * @param indexToSelect
+   * @param focusEditor 焦点编辑器
+   * @return
+   */
   @NotNull
   public ActionCallback setSelectedIndex(int indexToSelect, boolean focusEditor) {
     if (indexToSelect >= myTabs.getTabCount()) return ActionCallback.REJECTED;
     return myTabs.select(myTabs.getTabAt(indexToSelect), focusEditor);
   }
 
+  /**
+   * 创建可停靠编辑器
+   * @param project
+   * @param image
+   * @param file
+   * @param presentation
+   * @param window
+   * @param isNorthPanelAvailable
+   * @return
+   */
   @NotNull
   public static DockableEditor createDockableEditor(Project project,
                                                     Image image,
@@ -173,6 +201,13 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     return myTabs.getComponent();
   }
 
+  /**
+   * 删除标签
+   * @param componentIndex
+   * @param indexToSelect
+   * @param transferFocus
+   * @return
+   */
   public ActionCallback removeTabAt(int componentIndex, int indexToSelect, boolean transferFocus) {
     TabInfo toSelect = indexToSelect >= 0 && indexToSelect < myTabs.getTabCount() ? myTabs.getTabAt(indexToSelect) : null;
     TabInfo info = myTabs.getTabAt(componentIndex);
@@ -188,10 +223,19 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     return removeTabAt(componentIndex, indexToSelect, true);
   }
 
+  /**
+   * 获取选定索引
+   * @return
+   */
   public int getSelectedIndex() {
     return myTabs.getIndexOf(myTabs.getSelectedInfo());
   }
 
+  /**
+   * 将前景设置为
+   * @param index
+   * @param color
+   */
   void setForegroundAt(int index, @NotNull Color color) {
     myTabs.getTabAt(index).setDefaultForeground(color);
   }
@@ -201,6 +245,11 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     tab.setDefaultAttributes(attributes);
   }
 
+  /**
+   * 设置指定标签的标签图标
+   * @param index
+   * @param icon
+   */
   void setIconAt(int index, Icon icon) {
     myTabs.getTabAt(index).setIcon(icon);
   }
@@ -209,10 +258,20 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     return myTabs.getTabAt(index).getIcon();
   }
 
+  /**
+   * 设置标题
+   * @param index
+   * @param text
+   */
   void setTitleAt(int index, @NlsContexts.TabTitle @NotNull String text) {
     myTabs.getTabAt(index).setText(text);
   }
 
+  /**
+   * 将工具提示文本设置为
+   * @param index
+   * @param text
+   */
   void setToolTipTextAt(int index, @NlsContexts.Tooltip String text) {
     myTabs.getTabAt(index).setTooltipText(text);
   }
@@ -221,6 +280,10 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     myTabs.getTabAt(index).setTabColor(color);
   }
 
+  /**
+   * 设置选项卡布局策略
+   * @param policy
+   */
   void setTabLayoutPolicy(int policy) {
     switch (policy) {
       case JTabbedPane.SCROLL_TAB_LAYOUT:
@@ -234,6 +297,10 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     }
   }
 
+  /**
+   * 设置标签放置
+   * @param tabPlacement
+   */
   public void setTabPlacement(int tabPlacement) {
     switch (tabPlacement) {
       case SwingConstants.TOP:
@@ -329,6 +396,9 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     IdeFocusManager.getInstance(myProject).requestFocus(myTabs.getComponent(), forced);
   }
 
+  /**
+   * 我的可查询
+   */
   private static class MyQueryable implements Queryable {
     private final TabInfo myTab;
 
@@ -336,17 +406,29 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       myTab = tab;
     }
 
+    /**
+     * 存放信息
+     * @param info
+     */
     @Override
     public void putInfo(@NotNull Map<? super String, ? super String> info) {
       info.put("editorTab", myTab.getText());
     }
   }
 
+  /**
+   * 获取组件
+   * @param i
+   * @return
+   */
   public Component getComponentAt(int i) {
     TabInfo tab = myTabs.getTabAt(i);
     return tab.getComponent();
   }
 
+  /**
+   * 我的数据提供者
+   */
   private final class MyDataProvider implements DataProvider {
     @Override
     public Object getData(@NotNull @NonNls String dataId) {
@@ -386,13 +468,27 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     FileEditorManagerEx.getInstanceEx(myProject).closeFile((VirtualFile)selected.getObject(), myWindow);
   }
 
+  /**
+   * 是浮动的
+   * @return
+   */
   private boolean isFloating() {
     return myWindow.getOwner().isFloating();
   }
 
+  /**
+   * 标签鼠标监听器
+   */
   private class TabMouseListener extends MouseAdapter {
+    /**
+     * 我的操作点击次数
+     */
     private int myActionClickCount;
 
+    /**
+     * 鼠标释放
+     * @param e
+     */
     @Override
     public void mouseReleased(MouseEvent e) {
       if (UIUtil.isCloseClick(e, MouseEvent.MOUSE_RELEASED)) {
@@ -412,6 +508,10 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       }
     }
 
+    /**
+     * 鼠标按下
+     * @param e
+     */
     @Override
     public void mousePressed(MouseEvent e) {
       if (UIUtil.isActionClick(e)) {
@@ -441,6 +541,10 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     }
   }
 
+  /**
+   * 双击执行的操作
+   * @param e
+   */
   private static void doProcessDoubleClick(@NotNull MouseEvent e) {
     if (!AdvancedSettings.getBoolean("editor.maximize.on.double.click") && !AdvancedSettings.getBoolean("editor.maximize.in.splits.on.double.click")) return;
     ActionManager actionManager = ActionManager.getInstance();
@@ -475,6 +579,11 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     ObjectUtils.consumeIfNotNull(runnable, Runnable::run);
   }
 
+  /**
+   * 创建保持鼠标位置可运行
+   * @param event
+   * @return
+   */
   @NotNull
   private static Runnable createKeepMousePositionRunnable(@NotNull MouseEvent event) {
     return () -> EdtScheduledExecutorService.getInstance().schedule(() -> {
@@ -491,6 +600,9 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     }, 50, TimeUnit.MILLISECONDS);
   }
 
+  /**
+   * 进程拆分
+   */
   public void processSplit() {
     final TabInfo tabInfo = this.myTabs.getSelectedInfo();
     if (tabInfo == null) {
@@ -506,11 +618,25 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     final DockableEditor dockableEditor = createDockableEditor(myProject, img, file, presentation, myWindow, DockManagerImpl.isNorthPanelAvailable(editors));
   }
 
+  /**
+   * 我的拖出代表
+   */
   class MyDragOutDelegate implements TabInfo.DragOutDelegate {
 
+    /**
+     * 虚拟文件
+     */
     private VirtualFile myFile;
+    /**
+     * 拖动会话
+     */
     private DragSession mySession;
 
+    /**
+     * 拖出开始
+     * @param mouseEvent
+     * @param info
+     */
     @Override
     public void dragOutStarted(@NotNull MouseEvent mouseEvent, @NotNull TabInfo info) {
       TabInfo previousSelection = info.getPreviousSelection();
@@ -541,15 +667,29 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
         .createDragSession(mouseEvent, createDockableEditor(myProject, img, myFile, presentation, myWindow, isNorthPanelAvailable));
     }
 
+    /**
+     * 获取容器管理器
+     * @return
+     */
     private DockManager getDockManager() {
       return DockManager.getInstance(myProject);
     }
 
+    /**
+     * 进程拖出
+     * @param event
+     * @param source
+     */
     @Override
     public void processDragOut(@NotNull MouseEvent event, @NotNull TabInfo source) {
       mySession.process(event);
     }
 
+    /**
+     * 拖出完成
+     * @param event
+     * @param source
+     */
     @Override
     public void dragOutFinished(@NotNull MouseEvent event, TabInfo source) {
       boolean copy = UIUtil.isControlKeyDown(event) || mySession.getResponse(event) == DockContainer.ContentResponse.ACCEPT_COPY;
@@ -570,6 +710,10 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       mySession = null;
     }
 
+    /**
+     * 拖出取消
+     * @param source
+     */
     @Override
     public void dragOutCancelled(TabInfo source) {
       source.setHidden(false);
@@ -583,12 +727,32 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
 
   }
 
+  /**
+   * 可停靠编辑器
+   *
+   * 可停靠内容<虚拟问件>
+   */
   public static class DockableEditor implements DockableContent<VirtualFile> {
     final Image myImg;
+    /**
+     * 介绍
+     */
     private final Presentation myPresentation;
+    /**
+     * 首选尺寸
+     */
     private final Dimension myPreferredSize;
+    /**
+     * 固定
+     */
     private final boolean myPinned;
+    /**
+     * 北面板可用
+     */
     private final boolean myNorthPanelAvailable;
+    /**
+     * 虚拟文件
+     */
     private final VirtualFile myFile;
 
     public DockableEditor(Project project,
@@ -658,9 +822,18 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
     }
   }
 
+  /**
+   * 我的传输处理程序
+   */
   private final class MyTransferHandler extends TransferHandler {
     private final FileDropHandler myFileDropHandler = new FileDropHandler(null);
 
+    /**
+     * 导入数据
+     * @param comp
+     * @param t
+     * @return
+     */
     @Override
     public boolean importData(JComponent comp, Transferable t) {
       if (myFileDropHandler.canHandleDrop(t.getTransferDataFlavors())) {
@@ -670,12 +843,21 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       return false;
     }
 
+    /**
+     * 可以导入
+     * @param comp
+     * @param transferFlavors
+     * @return
+     */
     @Override
     public boolean canImport(JComponent comp, DataFlavor[] transferFlavors) {
       return myFileDropHandler.canHandleDrop(transferFlavors);
     }
   }
 
+  /**
+   * 编辑器选项卡
+   */
   private static final class EditorTabs extends SingleHeightTabs implements ComponentWithMnemonics {
     @NotNull
     private final EditorWindow myWindow;
@@ -705,11 +887,19 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       });
     }
 
+    /**
+     * 支持表格布局为单行
+     * @return
+     */
     @Override
     protected boolean supportsTableLayoutAsSingleRow() {
       return true;
     }
 
+    /**
+     * 绘制 子节点
+     * @param g
+     */
     @Override
     protected void paintChildren(Graphics g) {
       if (!isHideTabs() && ExperimentalUI.isNewEditorTabs()) {
@@ -725,6 +915,10 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       drawBorder(g);
     }
 
+    /**
+     * 获取入口点操作组
+     * @return
+     */
     @Override
     protected DefaultActionGroup getEntryPointActionGroup() {
       AnAction source = ActionManager.getInstance().getAction("EditorTabsEntryPoint");
@@ -732,10 +926,22 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       return new DefaultActionGroup(source);
     }
 
+    /**
+     * 创建新的标签页
+     * @param info
+     * @return
+     */
     @NotNull
     @Override
     protected TabLabel createTabLabel(@NotNull TabInfo info) {
+      /**
+       * 单一高度标签
+       */
       return new SingleHeightLabel(this, info) {
+        /**
+         * 获取首选高度
+         * @return
+         */
         @Override
         protected int getPreferredHeight() {
           Insets insets = getInsets();
@@ -750,6 +956,10 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
           return super.getPreferredHeight() - insets.top - insets.bottom;
         }
 
+        /**
+         * 绘制
+         * @param g
+         */
         @Override
         public void paint(Graphics g) {
           if (ExperimentalUI.isNewEditorTabs() && getSelectedInfo() != info && !isHoveredTab(this)) {
@@ -763,16 +973,27 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       };
     }
 
+    /**
+     * 创建 Tab Painter 适配器
+     * @return
+     */
     @Override
     protected TabPainterAdapter createTabPainterAdapter() {
       return new EditorTabPainterAdapter();
     }
 
+    /**
+     * 创建标签边框
+     * @return
+     */
     @Override
     protected JBTabsBorder createTabBorder() {
       return new JBEditorTabsBorder(this);
     }
 
+    /**
+     * 活动
+     */
     private boolean active;
 
     @NotNull
@@ -798,11 +1019,21 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       }
     }
 
+    /**
+     * 是活动标签
+     * @param info
+     * @return
+     */
     @Override
     protected boolean isActiveTabs(TabInfo info) {
       return active;
     }
 
+    /**
+     * 获取选择删除
+     * @param info
+     * @return
+     */
     @Nullable
     @Override
     public TabInfo getToSelectOnRemoveOf(TabInfo info) {
@@ -818,6 +1049,10 @@ public final class EditorTabbedContainer implements CloseAction.CloseTarget {
       return super.getToSelectOnRemoveOf(info);
     }
 
+    /**
+     * 重新验证并重绘
+     * @param layoutNow
+     */
     @Override
     public void revalidateAndRepaint(boolean layoutNow) {
       //noinspection ConstantConditions - called from super constructor
