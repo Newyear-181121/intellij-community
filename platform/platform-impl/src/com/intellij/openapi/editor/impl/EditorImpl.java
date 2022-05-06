@@ -121,48 +121,158 @@ import java.util.function.Predicate;
 
 import static com.intellij.openapi.editor.ex.util.EditorUtil.isCaretInsideSelection;
 
+/**
+ * 编辑器实现，
+ *
+ *  继承
+ *    用户数据持有人基础 类
+ *
+ *  实现
+ *    编辑器接口
+ *    高亮客户端接口
+ *    快速查询接口
+ *    转储接口
+ *    代码样式设置监听器 接口
+ *    焦点监听器 接口
+ *
+ */
 public final class EditorImpl extends UserDataHolderBase implements EditorEx, HighlighterClient, Queryable, Dumpable,
                                                                     CodeStyleSettingsListener, FocusListener {
+  /**
+   * 文字左对齐
+   */
   public static final int TEXT_ALIGNMENT_LEFT = 0;
+  /**
+   * 文本右对齐
+   */
   public static final int TEXT_ALIGNMENT_RIGHT = 1;
 
+  /**
+   * 最小字体大小
+   */
   private static final float MIN_FONT_SIZE = 8;
+  /**
+   * 日志
+   */
   private static final Logger LOG = Logger.getInstance(EditorImpl.class);
+  /**
+   * 事件日志
+   */
   static final Logger EVENT_LOG = Logger.getInstance("editor.input.events");
+  /**
+   * 免打扰命令组
+   */
   private static final Object DND_COMMAND_GROUP = ObjectUtils.sentinel("DndCommand");
+  /**
+   * 鼠标拖动命令组
+   */
   private static final Object MOUSE_DRAGGED_COMMAND_GROUP = ObjectUtils.sentinel("MouseDraggedGroup");
+  /**
+   * 永久标题
+   */
   private static final Key<JComponent> PERMANENT_HEADER = Key.create("PERMANENT_HEADER");
+  /**
+   * 包含双向文本
+   */
   static final Key<Boolean> CONTAINS_BIDI_TEXT = Key.create("contains.bidi.text");
+  /**
+   * 强制软包装
+   */
   public static final Key<Boolean> FORCED_SOFT_WRAPS = Key.create("forced.soft.wraps");
+  /**
+   * 存在软包装
+   */
   public static final Key<Boolean> SOFT_WRAPS_EXIST = Key.create("soft.wraps.exist");
+  /**
+   * 禁用插入位置保持
+   */
   @SuppressWarnings("WeakerAccess")
   public static final Key<Boolean> DISABLE_CARET_POSITION_KEEPING = Key.create("editor.disable.caret.position.keeping");
+  /**
+   * 禁用插入空格的插入符号移位
+   */
   public static final Key<Boolean> DISABLE_CARET_SHIFT_ON_WHITESPACE_INSERTION = Key.create("editor.disable.caret.shift.on.whitespace.insertion");
+  /**
+   * 三次单击时的荣誉骆驼驼峰
+   */
   private static final boolean HONOR_CAMEL_HUMPS_ON_TRIPLE_CLICK =
     Boolean.parseBoolean(System.getProperty("idea.honor.camel.humps.on.triple.click"));
+  /**
+   * 缓存
+   */
   private static final Key<BufferedImage> BUFFER = Key.create("buffer");
+  /**
+   * 初始化
+   */
   private static final Key<Boolean> INITIALIZED = Key.create("editor.is.fully.initialized");
+  /**
+   * 我的文档
+   */
   @NotNull private final DocumentEx myDocument;
 
+  /**
+   * 我的面板
+   */
   private final JPanel myPanel;
+  /**
+   * 滚动窗格
+   */
   @NotNull private final JScrollPane myScrollPane;
+  /**
+   * 我的编辑器组件
+   */
   @NotNull private final EditorComponentImpl myEditorComponent;
+  /**
+   * 编辑器 装订线 组件
+   */
   @NotNull private final EditorGutterComponentImpl myGutterComponent;
+  /**
+   * 我的可追踪一次性用品
+   */
   private final TraceableDisposable myTraceableDisposable = new TraceableDisposable(true);
+  /**
+   * 焦点模式模型
+   */
   private final FocusModeModel myFocusModeModel;
+  /**
+   * 我最后输入的操作时间戳
+   */
   private volatile long myLastTypedActionTimestamp = -1;
+  /**
+   * 我最后输入的操作
+   */
   private String myLastTypedAction;
+  /**
+   * 延迟监听器
+   */
   private LatencyListener myLatencyPublisher;
 
+  /**
+   * 空光标
+   */
   private static final Cursor EMPTY_CURSOR;
+  /**
+   * 我的自定义光标
+   */
   private final Map<Object, Cursor> myCustomCursors = new LinkedHashMap<>();
+  /**
+   * 我的默认光标
+   */
   private Cursor myDefaultCursor;
+  /**
+   * 我的光标设置在外部
+   */
   boolean myCursorSetExternally;
 
+  /**
+   * 静态初始化空的光标
+   */
   static {
     Cursor emptyCursor = null;
+    // 测试此环境是否支持 显示器，键盘和鼠标
     if (!GraphicsEnvironment.isHeadless()) {
       try {
+        // 创建一个新的自定义光标对象。如果要显示的图像无效，光标将被隐藏（完全透明），热点将设置为 (0, 0)。
         emptyCursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB),
                                                                      new Point(),
                                                                      "Empty cursor");
@@ -174,114 +284,327 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     EMPTY_CURSOR = emptyCursor;
   }
 
+  /**
+   * 我的命令处理器
+   */
   private final CommandProcessor myCommandProcessor;
+  /**
+   * 我的垂直滚动条
+   */
   @NotNull private final MyScrollBar myVerticalScrollBar;
 
+  /**
+   * 我的鼠标监听器列表
+   */
   private final List<EditorMouseListener> myMouseListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+  /**
+   * 我的鼠标运动监听器列表
+   */
   @NotNull private final List<EditorMouseMotionListener> myMouseMotionListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
+  /**
+   * 输入模式
+   * 我是插入模式
+   */
   private boolean myIsInsertMode = true;
 
+  /**
+   * 我的插入符号光标
+   */
   @NotNull private final CaretCursor myCaretCursor;
+  /**
+   * 我的滚动计时器
+   */
   private final ScrollingTimer myScrollingTimer = new ScrollingTimer();
 
+  /**
+   * 我的设置
+   */
   @NotNull private final SettingsImpl mySettings;
 
+  /**
+   * 发行了
+   */
   private boolean isReleased;
 
+  /**
+   * 我的鼠标按下事件
+   */
   @Nullable private MouseEvent myMousePressedEvent;
+  /**
+   * 我的鼠标移动事件
+   */
   @Nullable private MouseEvent myMouseMovedEvent;
 
+  /**
+   * 我的鼠标监听器
+   */
   private final MouseListener myMouseListener = new MyMouseAdapter();
+  /**
+   * 我的鼠标运动监听器
+   */
   private final MouseMotionListener myMouseMotionListener = new MyMouseMotionListener();
 
   /**
+   * 保存有关按下鼠标的区域的信息。
    * Holds information about area where mouse was pressed.
    */
   @Nullable private EditorMouseEventArea myMousePressArea;
+  /**
+   * 我保存的选择开始
+   */
   private int mySavedSelectionStart = -1;
+  /**
+   * 我保存的选择结束
+   */
   private int mySavedSelectionEnd   = -1;
 
+  /**
+   * 属性变化支持
+   */
   private final PropertyChangeSupport myPropertyChangeSupport = new PropertyChangeSupport(this);
+  /**
+   * 我的可编辑
+   */
   private MyEditable myEditable;
 
+  /**
+   * 编辑器配色方案
+   */
   @NotNull
   private EditorColorsScheme myScheme;
+  /**
+   * 我是查看器
+   */
   private boolean myIsViewer;
+  /**
+   * 我的选择模型
+   */
   @NotNull private final SelectionModelImpl mySelectionModel;
+  /**
+   * 编辑器标记模型
+   */
   @NotNull private final EditorMarkupModelImpl myMarkupModel;
+  /**
+   * 编辑器过滤标记模型
+   */
   @NotNull private final EditorFilteringMarkupModelEx myDocumentMarkupModel;
+  /**
+   * 标记模型监听器
+   */
   @NotNull private final MarkupModelListener myMarkupModelListener;
+  /**
+   * 高亮监听器列表
+   */
   @NotNull private final List<HighlighterListener> myHighlighterListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
+  /**
+   * 折叠模型
+   */
   @NotNull private final FoldingModelImpl myFoldingModel;
+  /**
+   * 滚动模型实现
+   */
   @NotNull private final ScrollingModelImpl myScrollingModel;
+  /**
+   * 插入符号模型实现
+   */
   @NotNull private final CaretModelImpl myCaretModel;
+  /**
+   * 软包装模型实施
+   */
   @NotNull private final SoftWrapModelImpl mySoftWrapModel;
+  /**
+   * 镶嵌模型实施
+   */
   @NotNull private final InlayModelImpl myInlayModel;
 
+  /**
+   * 重绘光标命令，  我们的插入符号闪烁命令
+   */
   @NotNull private static final RepaintCursorCommand ourCaretBlinkingCommand = new RepaintCursorCommand();
 
+  /**
+   * 我的鼠标选择状态
+   */
   @MouseSelectionState
   private int myMouseSelectionState;
+  /**
+   * 我的鼠标选择区域
+   */
   @Nullable private FoldRegion myMouseSelectedRegion;
 
+  /**
+   * 我的水平文本对齐， 默认文字左对齐
+   */
   private int myHorizontalTextAlignment = TEXT_ALIGNMENT_LEFT;
 
+  /**
+   * 鼠标选择状态  常量定义
+   *  无选择
+   *  子选择
+   *  行选择
+   */
   @MagicConstant(intValues = {MOUSE_SELECTION_STATE_NONE, MOUSE_SELECTION_STATE_LINE_SELECTED, MOUSE_SELECTION_STATE_WORD_SELECTED})
   private @interface MouseSelectionState {}
   private static final int MOUSE_SELECTION_STATE_NONE          = 0;
   private static final int MOUSE_SELECTION_STATE_WORD_SELECTED = 1;
   private static final int MOUSE_SELECTION_STATE_LINE_SELECTED = 2;
 
+  /**
+   * 编辑器高亮
+   */
   private volatile EditorHighlighter myHighlighter; // updated in EDT, but can be accessed from other threads (under read action)
+  /**
+   * 我的 一次性的高亮显示器
+   */
   private Disposable myHighlighterDisposable = Disposer.newDisposable();
+  /**
+   * 文字绘制回调
+   */
   private final TextDrawingCallback myTextDrawingCallback = new MyTextDrawingCallback();
 
+  /**
+   * 滚动条方向， 常量定义， 左，右
+   */
   @MagicConstant(intValues = {VERTICAL_SCROLLBAR_LEFT, VERTICAL_SCROLLBAR_RIGHT})
   private int         myScrollBarOrientation;
+  /**
+   * 我在鼠标按下时保持选择
+   */
   private boolean myKeepSelectionOnMousePress;
 
+  /**
+   * 我的更新光标
+   */
   private boolean myUpdateCursor;
+  /**
+   * 我的滚动位置保持器
+   * 编辑器滚动位置保持器
+   */
   private final EditorScrollingPositionKeeper myScrollingPositionKeeper;
+  /**
+   * 我的恢复滚动位置
+   */
   private boolean myRestoreScrollingPosition;
+  /**
+   * 我的重绘范围开始
+   */
   private int myRangeToRepaintStart;
+  /**
+   * 我的重绘范围结束
+   */
   private int myRangeToRepaintEnd;
 
+  /**
+   * 我的项目
+   */
   @Nullable
   private final Project myProject;
+  /**
+   * 我的鼠标选择更改时间戳
+   */
   private long myMouseSelectionChangeTimestamp;
+  /**
+   * 我为 DND Undo Hack 保存的插入符号偏移量
+   */
   private int mySavedCaretOffsetForDNDUndoHack;
+  /**
+   * 我的焦点监听器列表
+   */
   private final List<FocusChangeListener> myFocusListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
+  /**
+   * 我的输入法请求处理程序
+   */
   private MyInputMethodHandler myInputMethodRequestsHandler;
+  /**
+   * 输入法请求， 我的输入法请求 Swing Wrapper
+   */
   private InputMethodRequests myInputMethodRequestsSwingWrapper;
+  /**
+   * 我是单线模式
+   */
   private boolean myIsOneLineMode;
+  /**
+   * 我是渲染器模式
+   */
   private boolean myIsRendererMode;
+  /**
+   * 我的虚拟文件
+   */
   private VirtualFile myVirtualFile;
+  /**
+   * 我是列模式
+   */
   private boolean myIsColumnMode;
+  /**
+   * 我的强迫背景
+   */
   @Nullable private Color myForcedBackground;
+  /**
+   * 我的首选尺寸
+   */
   @Nullable private Dimension myPreferredSize;
 
+  /**
+   * 我的鼠标选择状态警报
+   */
   private final Alarm myMouseSelectionStateAlarm = new Alarm();
+  /**
+   * 我的鼠标选择状态重置  可运行
+   */
   private Runnable myMouseSelectionStateResetRunnable;
 
+  /**
+   * 是否嵌入到对话框包装器
+   */
   private boolean myEmbeddedIntoDialogWrapper;
+  /**
+   * 我在装订线选择起始线上拖动
+   */
   private int myDragOnGutterSelectionStartLine = -1;
+  /**
+   * 我的拖动范围
+   */
   private RangeMarker myDraggedRange;
+  /**
+   * 是否开始拖动
+   */
   private boolean myDragStarted;
 
+  /**
+   * 我的标题面板
+   */
   @NotNull private final JPanel myHeaderPanel;
 
+  /**
+   * 我的初始鼠标事件
+   */
   @Nullable private MouseEvent myInitialMouseEvent;
+  /**
+   * 是否忽略 鼠标事件 连续初始化
+   */
   private boolean myIgnoreMouseEventsConsecutiveToInitial;
 
+  /**
+   * 编辑器放置处理程序
+   */
   private EditorDropHandler myDropHandler;
 
+  /**
+   * 我的突出显示过滤器
+   */
   private Predicate<? super RangeHighlighter> myHighlightingFilter;
 
+  /**
+   * 我的缩进模型
+   */
   @NotNull private final IndentsModel myIndentsModel;
 
+  /**
+   * 我的占位符文本（字符序列）
+   */
   @Nullable
   private CharSequence myPlaceholderText;
   @Nullable private TextAttributes myPlaceholderAttributes;
