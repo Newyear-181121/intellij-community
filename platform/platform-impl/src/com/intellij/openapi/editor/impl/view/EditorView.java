@@ -370,7 +370,13 @@ public class EditorView implements TextDrawingCallback, Disposable, Dumpable, Hi
     setPrefix(myPrefixText, myPrefixAttributes); // recreate prefix layout
     mySizeManager.reset();
   }
-  
+
+  /**
+   * 无效范围
+   * @param startOffset
+   * @param endOffset
+   * @param invalidateSize
+   */
   public void invalidateRange(int startOffset, int endOffset, boolean invalidateSize) {
     assertIsDispatchThread();
     int textLength = myDocument.getTextLength();
@@ -379,6 +385,7 @@ public class EditorView implements TextDrawingCallback, Disposable, Dumpable, Hi
     }
     int startLine = myDocument.getLineNumber(Math.max(0, startOffset));
     int endLine = myDocument.getLineNumber(Math.min(textLength, endOffset));
+    // 我的文本布局缓存
     myTextLayoutCache.invalidateLines(startLine, endLine);
     if (invalidateSize) {
       mySizeManager.invalidateRange(startOffset, endOffset);

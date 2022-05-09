@@ -45,6 +45,9 @@ public class EditorFactoryImpl extends EditorFactory {
   private static final ExtensionPointName<EditorFactoryListener> EP = new ExtensionPointName<>("com.intellij.editorFactoryListener");
 
   private static final Logger LOG = Logger.getInstance(EditorFactoryImpl.class);
+  /**
+   * 编辑器事件 组 管理器
+   */
   private final EditorEventMulticasterImpl myEditorEventMulticaster = new EditorEventMulticasterImpl();
   private final EventDispatcher<EditorFactoryListener> myEditorFactoryEventDispatcher = EventDispatcher.create(EditorFactoryListener.class);
 
@@ -202,9 +205,11 @@ public class EditorFactoryImpl extends EditorFactory {
     EditorImpl editor = new EditorImpl(hostDocument, isViewer, project, kind);
     ClientEditorManager editorManager = ClientEditorManager.getCurrentInstance();
     editorManager.editorCreated(editor);
+    // 注册各种监听器
     myEditorEventMulticaster.registerEditor(editor);
 
     EditorFactoryEvent event = new EditorFactoryEvent(this, editor);
+
     myEditorFactoryEventDispatcher.getMulticaster().editorCreated(event);
     EP.forEachExtensionSafe(it -> it.editorCreated(event));
 

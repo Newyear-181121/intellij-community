@@ -214,6 +214,10 @@ public class FileEditorManagerImpl extends FileEditorManagerEx implements Persis
     }, myProject);
   }
 
+  /**
+   * 注册编辑器
+   * @param editor
+   */
   private void registerEditor(@NotNull Editor editor) {
     Project project = editor.getProject();
     if (project == null || project.isDisposed()) {

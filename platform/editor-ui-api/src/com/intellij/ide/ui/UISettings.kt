@@ -372,6 +372,9 @@ class UISettings @NonInjectable constructor(private val notRoamableOptions: NotR
       state.activeRightEditorOnClose = value
     }
 
+  /**
+   * 显示选项卡工具提示
+   */
   var showTabsTooltips: Boolean
     get() = state.showTabsTooltips
     set(value) {

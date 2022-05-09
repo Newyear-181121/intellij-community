@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
+ * 应用程序管理器
  * Provides access to the {@link Application}.
  */
 public class ApplicationManager {
@@ -20,6 +21,7 @@ public class ApplicationManager {
 
   private static void setApplication(@NotNull Application instance) {
     ourApplication = instance;
+    // 缓存单例注册表，   清理缓存字段
     CachedSingletonsRegistry.cleanupCachedFields();
   }
 

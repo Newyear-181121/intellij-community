@@ -13,6 +13,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 
+/**
+ * 交互式拆分动作
+ */
 public class InteractiveSplitAction extends AnAction implements DumbAware {
   @Override
   public void update(@NotNull AnActionEvent e) {

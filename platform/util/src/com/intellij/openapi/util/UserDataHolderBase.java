@@ -10,6 +10,9 @@ import org.jetbrains.annotations.TestOnly;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * 用户数据持有人基础
+ */
 @ReviseWhenPortedToJDK("11") // rewrite to VarHandles to avoid smelling AtomicREference inheritance
 @Transient
 public class UserDataHolderBase extends AtomicReference<KeyFMap> implements UserDataHolderEx {

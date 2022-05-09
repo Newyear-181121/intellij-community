@@ -19,9 +19,24 @@ package com.intellij.openapi.editor;
  * Enumerates distinct types of editor.
  */
 public enum EditorKind {
+  /**
+   * 未分类
+   */
   UNTYPED,
+  /**
+   * 主编
+   */
   MAIN_EDITOR,  // instead of SoftWrapAppliancePlaces.MAIN_EDITOR
+  /**
+   * 控制台视图
+   */
   CONSOLE,      // EDITOR_IS_CONSOLE_VIEW, SoftWrapAppliancePlaces.CONSOLE
+  /**
+   * 预览
+   */
   PREVIEW,      // SoftWrapAppliancePlaces.PREVIEW
+  /**
+   * 差异
+   */
   DIFF         // EDITOR_IS_DIFF_KEY
 }

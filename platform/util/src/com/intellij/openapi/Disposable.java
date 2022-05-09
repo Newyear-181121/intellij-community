@@ -4,6 +4,7 @@ package com.intellij.openapi;
 import com.intellij.openapi.util.Disposer;
 
 /**
+ * 此类标记需要完成一些清理工作的类
  * This class marks classes, which require some work done for cleaning up.
  * <p>
  * As a general policy, you shouldn't call the {@link #dispose()} method directly,

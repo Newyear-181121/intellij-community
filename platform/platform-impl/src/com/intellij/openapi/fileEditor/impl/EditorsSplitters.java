@@ -76,6 +76,9 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import static com.intellij.openapi.wm.ToolWindowId.PROJECT_VIEW;
 
+/**
+ * 编辑器分离器
+ */
 @DirtyUI
 public class EditorsSplitters extends IdePanePanel implements UISettingsListener, Disposable {
   private static final Key<Activity> OPEN_FILES_ACTIVITY = Key.create("open.files.activity");
@@ -86,6 +89,9 @@ public class EditorsSplitters extends IdePanePanel implements UISettingsListener
   private static final Key<Boolean> OPENED_IN_BULK = Key.create("EditorSplitters.opened.in.bulk");
   @NonNls public static final String SPLITTER_KEY = "EditorsSplitters";
 
+  /**
+   * 当前编辑器窗口
+   */
   private EditorWindow myCurrentWindow;
   private long myLastFocusGainedTime = 0L;
   private final Set<EditorWindow> myWindows = new CopyOnWriteArraySet<>();

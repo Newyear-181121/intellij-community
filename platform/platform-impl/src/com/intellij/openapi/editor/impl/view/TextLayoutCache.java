@@ -32,6 +32,10 @@ class TextLayoutCache implements PrioritizedDocumentListener, Disposable {
 
   private final EditorView myView;
   private final Document myDocument;
+  /**
+   * 行布局器
+   * 我的 Bidi 不需要标记
+   */
   private final LineLayout myBidiNotRequiredMarker;
   private ArrayList<LineLayout> myLines = new ArrayList<>();
   private int myDocumentChangeOldEndLine;
@@ -112,15 +116,19 @@ class TextLayoutCache implements PrioritizedDocumentListener, Disposable {
   }
 
   private void invalidateLines(int startLine, int oldEndLine, int newEndLine, boolean textChanged, boolean bidiRequiredForNewText) {
+    // 检查已处置
     checkDisposed();
 
+    // 文本已更改
     if (textChanged) {
+      // 第一条旧 行
       LineLayout firstOldLine = startLine >= 0 && startLine < myLines.size() ? myLines.get(startLine) : null;
       LineLayout lastOldLine = oldEndLine >= 0 && oldEndLine < myLines.size() ? myLines.get(oldEndLine) : null;
       if (firstOldLine == null || lastOldLine == null || !firstOldLine.isLtr() || !lastOldLine.isLtr()) bidiRequiredForNewText = true;
     }
 
     int endLine = Math.min(oldEndLine, newEndLine);
+    // 每行处理
     for (int line = startLine; line <= endLine; line++) {
       LineLayout lineLayout = myLines.get(line);
       if (lineLayout != null) {

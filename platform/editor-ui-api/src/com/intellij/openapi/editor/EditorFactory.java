@@ -41,22 +41,27 @@ public abstract class EditorFactory {
   public abstract Document createDocument(char @NotNull [] text);
 
   /**
+   * 为指定的文档创建一个编辑器。必须在 EDT 中调用。
    * Creates an editor for the specified document. Must be invoked in EDT.
    * <p>
+   *   创建的编辑器必须在使用后通过调用 {@link releaseEditor(Editor)} 进行处理。
    * The created editor must be disposed after use by calling {@link #releaseEditor(Editor)}.
    * </p>
    */
   public abstract Editor createEditor(@NotNull Document document);
 
   /**
+   * 为指定文档创建只读编辑器。必须在 EDT 中调用。
    * Creates a read-only editor for the specified document. Must be invoked in EDT.
    * <p>
+   *   创建的编辑器必须在使用后通过调用 {@link releaseEditor(Editor)} 进行处理。
    * The created editor must be disposed after use by calling {@link #releaseEditor(Editor)}.
    * </p>
    */
   public abstract Editor createViewer(@NotNull Document document);
 
   /**
+   * 为与指定项目关联的指定文档创建编辑器。必须在 EDT 中调用。
    * Creates an editor for the specified document associated with the specified project. Must be invoked in EDT.
    * <p>
    * The created editor must be disposed after use by calling {@link #releaseEditor(Editor)}.
@@ -118,11 +123,13 @@ public abstract class EditorFactory {
   public abstract Editor createViewer(@NotNull Document document, @Nullable Project project, @NotNull EditorKind kind);
 
   /**
+   * 释放指定的编辑器实例。必须在 EDT 中调用。
    * Disposes the specified editor instance. Must be invoked in EDT.
    */
   public abstract void releaseEditor(@NotNull Editor editor);
 
   /**
+   * 返回与指定项目关联的指定文档的编辑器流。
    * Returns the stream of editors for the specified document associated with the specified project.
    *
    * @param document the document for which editors are requested.

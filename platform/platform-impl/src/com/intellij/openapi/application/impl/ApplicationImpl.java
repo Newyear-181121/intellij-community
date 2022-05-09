@@ -103,6 +103,9 @@ public class ApplicationImpl extends ClientAwareComponentManager implements Appl
   private boolean mySaveAllowed;
   private volatile boolean myExitInProgress;
 
+  /**
+   * 我最后的一次性用品
+   */
   private final Disposable myLastDisposable = Disposer.newDisposable();  // the last to be disposed
 
   // defer reading isUnitTest flag until it's initialized

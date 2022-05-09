@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 /**
+ * 管理需要清理的链接对象的父子关系。
  * <p>Manages a parent-child relation of chained objects requiring cleanup.</p>
  *
  * <p>A root node can be created via {@link #newDisposable()}, to which children are attached via subsequent calls to {@link #register(Disposable, Disposable)}.
@@ -106,6 +107,9 @@ public final class Disposer {
   private static final Map<String, Disposable> ourKeyDisposables = ContainerUtil.createConcurrentWeakMap();
 
   /**
+   * 注册child以便在其parent之前处理它。
+   * 有关更多详细信息，请参阅class JavaDoc 。
+   * 此方法覆盖child的 parent 一次性，即，如果child已在oldParent注册，则在向parent注册之前，它会从oldParent注销。
    * Registers {@code child} so it is disposed right before its {@code parent}. See {@link Disposer class JavaDoc} for more details.
    * This method overrides parent disposable for the {@code child}, i.e., if {@code child} is already registered with {@code oldParent},
    * then it's unregistered from {@code oldParent} before registering with {@code parent}.
@@ -201,6 +205,10 @@ public final class Disposer {
     return ourKeyDisposables.get(key);
   }
 
+  /**
+   * 处置
+   * @param disposable
+   */
   public static void dispose(@NotNull Disposable disposable) {
     dispose(disposable, true);
   }

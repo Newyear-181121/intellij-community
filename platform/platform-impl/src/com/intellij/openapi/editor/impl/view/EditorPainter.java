@@ -187,8 +187,11 @@ public final class EditorPainter implements TextDrawingCallback {
       paintCustomRenderers(myEditorMarkup);
       paintLineMarkersSeparators(myDocMarkup);
       paintLineMarkersSeparators(myEditorMarkup);
+      // 用效果绘制文本
       paintTextWithEffects();
+      // 行尾 绘制高亮
       paintHighlightersAfterEndOfLine(myDocMarkup);
+      // 行首绘制高亮
       paintHighlightersAfterEndOfLine(myEditorMarkup);
       paintBorderEffect(myEditor.getHighlighter());
       paintBorderEffect(myDocMarkup);
@@ -201,6 +204,10 @@ public final class EditorPainter implements TextDrawingCallback {
       myGraphics.translate(0, myYShift);
     }
 
+    /**
+     * 绘制占位符文本
+     * @return
+     */
     private boolean paintPlaceholderText() {
       CharSequence hintText = myEditor.getPlaceholder();
       EditorComponentImpl editorComponent = myEditor.getContentComponent();
@@ -232,6 +239,9 @@ public final class EditorPainter implements TextDrawingCallback {
       return true;
     }
 
+    /**
+     * 绘制右边距
+     */
     private void paintRightMargin() {
       if (myEditor.getSettings().isRightMarginShown()) {
         Color visualGuidesColor = myEditor.getColorsScheme().getColor(EditorColors.VISUAL_INDENT_GUIDE_COLOR);
@@ -289,15 +299,27 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 获取基本边距宽度
+     * @param view
+     * @return
+     */
     private static float getBaseMarginWidth(EditorView view) {
       Editor editor = view.getEditor();
       return editor.getSettings().getRightMargin(editor.getProject()) * view.getPlainSpaceWidth();
     }
 
+    /**
+     * 是否显示边距
+     * @return
+     */
     private boolean isMarginShown() {
       return EditorPainter.isMarginShown(myEditor);
     }
 
+    /**
+     * 油漆背景
+     */
     private void paintBackground() {
       int lineCount = myEditor.getVisibleLineCount();
       boolean calculateMarginWidths = Registry.is("editor.adjust.right.margin") && isMarginShown() && myStartVisualLine < lineCount;
@@ -353,6 +375,7 @@ public final class EditorPainter implements TextDrawingCallback {
         boolean paintSoftWraps = paintAllSoftWraps ||
                                  myEditor.getCaretModel().getLogicalPosition().line == visLinesIterator.getDisplayedLogicalLine();
         int[] currentLogicalLine = new int[]{-1};
+        //  画线片段                             线段画家
         paintLineFragments(visLinesIterator, y, new LineFragmentPainter() {
           @Override
           public void paintBeforeLineStart(TextAttributes attributes, boolean hasSoftWrap, int columnEnd, float xEnd, int y) {
@@ -474,6 +497,15 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 油漆折叠背景
+     * @param innerAttributes
+     * @param x
+     * @param y
+     * @param width
+     * @param foldRegion
+     * @return
+     */
     private boolean paintFoldingBackground(TextAttributes innerAttributes, float x, int y, float width, @NotNull FoldRegion foldRegion) {
       if (innerAttributes.getBackgroundColor() != null && !isSelected(foldRegion)) {
         paintBackground(innerAttributes, x, y, width);
@@ -492,6 +524,13 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 创建虚拟选择图
+     * @param editor
+     * @param startVisualLine
+     * @param endVisualLine
+     * @return
+     */
     private static @NotNull Int2ObjectMap<IntPair> createVirtualSelectionMap(Editor editor, int startVisualLine, int endVisualLine) {
       Int2ObjectMap<IntPair> map = new Int2ObjectOpenHashMap<>();
       for (Caret caret : editor.getCaretModel().getAllCarets()) {
@@ -509,6 +548,13 @@ public final class EditorPainter implements TextDrawingCallback {
       return map;
     }
 
+    /**
+     * 必要时绘制虚拟选择
+     * @param visualLine
+     * @param columnStart
+     * @param xStart
+     * @param y
+     */
     private void paintVirtualSelectionIfNecessary(int visualLine, int columnStart, float xStart, int y) {
       IntPair selectionRange = myVirtualSelectionMap.get(visualLine);
       if (selectionRange == null || selectionRange.second <= columnStart) return;
@@ -520,6 +566,15 @@ public final class EditorPainter implements TextDrawingCallback {
       paintBackground(myEditor.getColorsScheme().getColor(EditorColors.SELECTION_BACKGROUND_COLOR), startX, y, endX - startX);
     }
 
+    /**
+     * 如有必要，在第二条软包装线上选择油漆
+     * @param visualLine
+     * @param columnEnd
+     * @param xEnd
+     * @param y
+     * @param selectionStartPosition
+     * @param selectionEndPosition
+     */
     private void paintSelectionOnSecondSoftWrapLineIfNecessary(int visualLine, int columnEnd, float xEnd, int y,
                                                                VisualPosition selectionStartPosition, VisualPosition selectionEndPosition) {
       if (selectionStartPosition.equals(selectionEndPosition) ||
@@ -537,6 +592,15 @@ public final class EditorPainter implements TextDrawingCallback {
       paintBackground(myEditor.getColorsScheme().getColor(EditorColors.SELECTION_BACKGROUND_COLOR), startX, y, endX - startX);
     }
 
+    /**
+     * 如有必要，在第一条软包装线上选择油漆
+     * @param visualLine
+     * @param columnStart
+     * @param xStart
+     * @param y
+     * @param selectionStartPosition
+     * @param selectionEndPosition
+     */
     private void paintSelectionOnFirstSoftWrapLineIfNecessary(int visualLine,
                                                               int columnStart,
                                                               float xStart,
@@ -577,6 +641,10 @@ public final class EditorPainter implements TextDrawingCallback {
       myGraphics.fill(new Rectangle2D.Float(x, y, width, height));
     }
 
+    /**
+     * 绘制自定义渲染器
+     * @param markupModel
+     */
     private void paintCustomRenderers(MarkupModelEx markupModel) {
       myGraphics.translate(0, myYShift);
       markupModel.processRangeHighlightersOverlappingWith(myStartOffset, myEndOffset, highlighter -> {
@@ -596,6 +664,9 @@ public final class EditorPainter implements TextDrawingCallback {
       myGraphics.translate(0, -myYShift);
     }
 
+    /**
+     * 绘制前景自定义渲染器
+     */
     private void paintForegroundCustomRenderers() {
       if (!myForegroundCustomHighlighters.isEmpty()) {
         myGraphics.translate(0, myYShift);
@@ -609,6 +680,10 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 油漆线标记分隔符
+     * @param markupModel
+     */
     private void paintLineMarkersSeparators(MarkupModelEx markupModel) {
       markupModel.processRangeHighlightersOverlappingWith(mySeparatorHighlightersStartOffset, mySeparatorHighlightersEndOffset,
                                                           highlighter -> {
@@ -617,6 +692,10 @@ public final class EditorPainter implements TextDrawingCallback {
                                                           });
     }
 
+    /**
+     * 油漆线标记分离器
+     * @param marker
+     */
     private void paintLineMarkerSeparator(RangeHighlighter marker) {
       Color separatorColor = marker.getLineSeparatorColor();
       LineSeparatorRenderer lineSeparatorRenderer = marker.getLineSeparatorRenderer();
@@ -641,11 +720,19 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 用效果绘制文本
+     */
     private void paintTextWithEffects() {
       myTextDrawingTasks.forEach(t -> t.accept(myGraphics));
       ComplexTextFragment.flushDrawingCache(myGraphics);
     }
 
+    /**
+     * 获取内部荧光笔属性
+     * @param region
+     * @return
+     */
     @Nullable
     private TextAttributes getInnerHighlighterAttributes(@NotNull FoldRegion region) {
       if (region.areInnerHighlightersMuted()) return null;
@@ -678,6 +765,12 @@ public final class EditorPainter implements TextDrawingCallback {
       return new TextAttributes(fgColor, bgColor, effectColor, effectType, Font.PLAIN);
     }
 
+    /**
+     * 收集可见的内部荧光笔
+     * @param region
+     * @param markupModel
+     * @param highlighters
+     */
     private static void collectVisibleInnerHighlighters(@NotNull FoldRegion region, @NotNull MarkupModelEx markupModel,
                                                         @NotNull List<? super RangeHighlighterEx> highlighters) {
       int startOffset = region.getStartOffset();
@@ -690,6 +783,16 @@ public final class EditorPainter implements TextDrawingCallback {
       });
     }
 
+    /**
+     * 画线布局与效果
+     * @param layout
+     * @param x
+     * @param y
+     * @param color
+     * @param effectColor
+     * @param effectType
+     * @return
+     */
     private float paintLineLayoutWithEffect(LineLayout layout, float x, float y, @Nullable Color color,
                                             @Nullable Color effectColor, @Nullable EffectType effectType) {
       paintTextEffect(x, x + layout.getWidth(), (int)y, effectColor, effectType, false);
@@ -701,6 +804,15 @@ public final class EditorPainter implements TextDrawingCallback {
       return x;
     }
 
+    /**
+     * 绘制文字效果
+     * @param xFrom
+     * @param xTo
+     * @param y
+     * @param effectColor
+     * @param effectType  效果类型
+     * @param allowBorder
+     */
     private void paintTextEffect(float xFrom,
                                  float xTo,
                                  int y,
@@ -713,6 +825,7 @@ public final class EditorPainter implements TextDrawingCallback {
       myGraphics.setColor(effectColor);
       int xStart = (int)xFrom;
       int xEnd = (int)xTo;
+      // 下划线
       if (effectType == EffectType.LINE_UNDERSCORE) {
         EffectPainter.LINE_UNDERSCORE.paint(myGraphics, xStart, y, xEnd - xStart, myDescent,
                                             myEditor.getColorsScheme().getFont(EditorFontType.PLAIN));
@@ -738,15 +851,37 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 计算特征大小
+     * @param unscaledSize
+     * @param scale
+     * @return
+     */
     private static int calcFeatureSize(int unscaledSize, float scale) {
       return Math.max(1, Math.round(scale * unscaledSize));
     }
 
+    /**
+     * 圆到像素中心
+     * @param value
+     * @return
+     */
     private float roundToPixelCenter(double value) {
       double devPixel = 1 / PaintUtil.devValue(1, myScaleContext);
       return (float)(PaintUtil.alignToInt(value, myScaleContext, PaintUtil.RoundingMode.FLOOR, null) + devPixel / 2);
     }
 
+    /**
+     * 绘制空白
+     * @param x
+     * @param y
+     * @param start
+     * @param end
+     * @param whitespacePaintingStrategy
+     * @param fragment
+     * @param stroke
+     * @param scale
+     */
     private void paintWhitespace(float x, int y, int start, int end,
                                  LineWhitespacePaintingStrategy whitespacePaintingStrategy,
                                  VisualLineFragmentsIterator.Fragment fragment, BasicStroke stroke, float scale) {
@@ -845,14 +980,29 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 获取标签间隙
+     * @param scale
+     * @return
+     */
     private static int getTabGap(float scale) {
       return calcFeatureSize(5, scale);
     }
 
+    /**
+     * 获取空白空间比例
+     * @param editor
+     * @return
+     */
     private static float getWhiteSpaceScale(@NotNull Editor editor) {
       return ((float)editor.getColorsScheme().getEditorFontSize()) / FontPreferences.DEFAULT_FONT_SIZE;
     }
 
+    /**
+     * 收集扩展
+     * @param visualLine
+     * @param offset
+     */
     private void collectExtensions(int visualLine, int offset) {
       myEditor.processLineExtensions(myDocument.getLineNumber(offset), (info) -> {
         List<LineExtensionData> list = myExtensionData.get(visualLine);
@@ -862,6 +1012,12 @@ public final class EditorPainter implements TextDrawingCallback {
       });
     }
 
+    /**
+     * 画线扩展背景
+     * @param visualLine
+     * @param x
+     * @param y
+     */
     private void paintLineExtensionsBackground(int visualLine, float x, int y) {
       List<LineExtensionData> data = myExtensionData.get(visualLine);
       if (data == null) return;
@@ -872,6 +1028,13 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 打印行扩展
+     * @param visualLine
+     * @param logicalLine
+     * @param x
+     * @param y
+     */
     private void paintLineExtensions(int visualLine, int logicalLine, float x, int y) {
       List<LineExtensionData> data = myExtensionData.get(visualLine);
       if (data == null) return;
@@ -887,6 +1050,7 @@ public final class EditorPainter implements TextDrawingCallback {
     }
 
     private void paintHighlightersAfterEndOfLine(MarkupModelEx markupModel) {
+      // 处理范围高亮重叠
       markupModel.processRangeHighlightersOverlappingWith(myStartOffset, myEndOffset, highlighter -> {
         if (highlighter.getStartOffset() >= myStartOffset) {
           paintHighlighterAfterEndOfLine(highlighter);
@@ -895,6 +1059,10 @@ public final class EditorPainter implements TextDrawingCallback {
       });
     }
 
+    /**
+     * 行尾后 高亮 绘制
+     * @param highlighter
+     */
     private void paintHighlighterAfterEndOfLine(RangeHighlighterEx highlighter) {
       if (!highlighter.isAfterEndOfLine()) {
         return;
@@ -913,18 +1081,29 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 绘制边框效果
+     * @param highlighter
+     */
     private void paintBorderEffect(EditorHighlighter highlighter) {
       HighlighterIterator it = highlighter.createIterator(myStartOffset);
       while (!it.atEnd() && it.getStart() < myEndOffset) {
+        // 获取文本属性
         TextAttributes attributes = it.getTextAttributes();
+        // 获取边界描述符
         EffectDescriptor borderDescriptor = getBorderDescriptor(attributes);
         if (borderDescriptor != null) {
+          // 绘制边框效果
           paintBorderEffect(it.getStart(), it.getEnd(), borderDescriptor);
         }
         it.advance();
       }
     }
 
+    /**
+     * 绘制边框效果
+     * @param markupModel
+     */
     private void paintBorderEffect(MarkupModelEx markupModel) {
       markupModel.processRangeHighlightersOverlappingWith(myStartOffset, myEndOffset, rangeHighlighter -> {
         TextAttributes attributes = rangeHighlighter.getTextAttributes(myEditor.getColorsScheme());
@@ -937,6 +1116,8 @@ public final class EditorPainter implements TextDrawingCallback {
     }
 
     /**
+     * 获取边界描述符
+     * 如果属性包含不为 null 颜色的边框效果，则为边框效果，否则为 null
      * @return {@link EffectDescriptor descriptor} of border effect if attributes contains a border effect with not null color and
      *         null otherwise
      */
@@ -948,13 +1129,23 @@ public final class EditorPainter implements TextDrawingCallback {
              : TextAttributesEffectsBuilder.create(attributes).getEffectDescriptor(TextAttributesEffectsBuilder.EffectSlot.FRAME_SLOT);
     }
 
+    /**
+     * 绘制边框效果
+     * @param startOffset
+     * @param endOffset
+     * @param borderDescriptor
+     */
     private void paintBorderEffect(int startOffset, int endOffset, EffectDescriptor borderDescriptor) {
+      // 对齐代码点边界
       startOffset = DocumentUtil.alignToCodePointBoundary(myDocument, startOffset);
       endOffset = DocumentUtil.alignToCodePointBoundary(myDocument, endOffset);
 
+      // 获取折叠模型     通过折叠模型，获取折叠区域偏移量
       FoldRegion foldRegion = myEditor.getFoldingModel().getCollapsedRegionAtOffset(startOffset);
+      // 如果被折叠了就不绘制了
       if (foldRegion != null && endOffset <= foldRegion.getEndOffset()) return;
 
+      // 检查范围是否可见
       if (!myClipDetector.rangeCanBeVisible(startOffset, endOffset)) return;
 
       int startLine = myDocument.getLineNumber(startOffset);
@@ -968,6 +1159,7 @@ public final class EditorPainter implements TextDrawingCallback {
       }
 
       boolean rounded = borderDescriptor.effectType == EffectType.ROUNDED_BOX;
+      // 利润-- 在这里是什么意思？
       int margin = borderDescriptor.effectType == EffectType.SLIGHTLY_WIDER_BOX ? 1 : 0;
       myGraphics.setColor(borderDescriptor.effectColor);
       int startVisualLine = myView.offsetToVisualLine(startOffset, false);
@@ -1054,6 +1246,13 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 绘制简单边框
+     * @param xStart
+     * @param xEnd
+     * @param y
+     * @param rounded
+     */
     private void drawSimpleBorder(float xStart, float xEnd, float y, boolean rounded) {
       Shape border = getBorderShape(xStart, y, xEnd - xStart, myLineHeight, 1, rounded);
       if (border != null) {
@@ -1064,11 +1263,22 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 获取边框形状
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     * @param thickness 厚度
+     * @param rounded
+     * @return
+     */
     private static Shape getBorderShape(float x, float y, float width, int height, int thickness, boolean rounded) {
       if (width <= 0 || height <= 0) return null;
       Shape outer = rounded
                     ? new RoundRectangle2D.Float(x, y, width, height, 2, 2)
                     : new Rectangle2D.Float(x, y, width, height);
+      // 双倍厚度
       int doubleThickness = 2 * thickness;
       if (width <= doubleThickness || height <= doubleThickness) return outer;
       Shape inner = new Rectangle2D.Float(x + thickness, y + thickness, width - doubleThickness, height - doubleThickness);
@@ -1079,8 +1289,17 @@ public final class EditorPainter implements TextDrawingCallback {
       return path;
     }
 
+    /**
+     * 画线
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param rounded
+     */
     private void drawLine(float x1, int y1, float x2, int y2, boolean rounded) {
       if (rounded) {
+        // 画线挑选出来
         UIUtil.drawLinePickedOut(myGraphics, (int)x1, y1, (int)x2, y2);
       }
       else {
@@ -1089,6 +1308,8 @@ public final class EditorPainter implements TextDrawingCallback {
     }
 
     /**
+     * 调整逻辑范围到视觉范围
+     * 返回从 {@link logicalRangeToVisualRanges(int, int)} 获得的范围，针对绘画范围边界进行调整 - 线条应在目标范围内排列（空范围除外）。目标偏移应该位于同一视线上。
      * Returns ranges obtained from {@link #logicalRangeToVisualRanges(int, int)}, adjusted for painting range border - lines should
      * line inside target ranges (except for empty range). Target offsets are supposed to be located on the same visual line.
      */
@@ -1116,6 +1337,9 @@ public final class EditorPainter implements TextDrawingCallback {
 
 
     /**
+     * 逻辑范围到视觉范围
+     * 返回表示给定逻辑范围的可视范围的 x 坐标对列表。
+     * 如果 {@code startOffset == endOffset}，则返回一对相等的数字，对应于目标位置。目标偏移应该位于同一视线上。
      * Returns a list of pairs of x coordinates for visual ranges representing given logical range. If
      * {@code startOffset == endOffset}, a pair of equal numbers is returned, corresponding to target position. Target offsets are
      * supposed to be located on the same visual line.
@@ -1179,6 +1403,9 @@ public final class EditorPainter implements TextDrawingCallback {
       return result;
     }
 
+    /**
+     * 油漆组合文字装饰
+     */
     private void paintComposedTextDecoration() {
       TextRange composedTextRange = myEditor.getComposedTextRange();
       if (composedTextRange != null) {
@@ -1193,6 +1420,9 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 油漆块镶嵌
+     */
     private void paintBlockInlays() {
       if (!myEditor.getInlayModel().hasBlockElements()) return;
       int startX = myInsets.left;
@@ -1236,6 +1466,11 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 获取镶嵌属性
+     * @param visualLine
+     * @return
+     */
     private TextAttributes getInlayAttributes(int visualLine) {
       TextAttributes attributes = myBetweenLinesAttributes.get(visualLine);
       if (attributes != null) return attributes;
@@ -1243,6 +1478,13 @@ public final class EditorPainter implements TextDrawingCallback {
       return new TextAttributes();
     }
 
+    /**
+     * 获取行间属性
+     * @param bottomVisualLine
+     * @param bottomVisualLineStartOffset
+     * @param caretIterator
+     * @return
+     */
     @NotNull
     private TextAttributes getBetweenLinesAttributes(int bottomVisualLine,
                                                      int bottomVisualLineStartOffset,
@@ -1255,6 +1497,9 @@ public final class EditorPainter implements TextDrawingCallback {
                     caret.getSelectionStartPosition().line < bottomVisualLine && bottomVisualLine <= caret.getSelectionEndPosition().line;
       }
 
+      /**
+       * 我的处理器
+       */
       final class MyProcessor implements Processor<RangeHighlighterEx> {
         private int layer;
         private Color backgroundColor;
@@ -1289,6 +1534,9 @@ public final class EditorPainter implements TextDrawingCallback {
       return attributes;
     }
 
+    /**
+     * 油漆插入符号
+     */
     private void paintCaret() {
       if (myEditor.isPurePaintingMode()) return;
       EditorImpl.CaretRectangle[] locations = myEditor.getCaretLocations(true);
@@ -1360,19 +1608,53 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 油漆插入符号栏
+     * @param g
+     * @param caret
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     * @param isRtl
+     */
     private void paintCaretBar(@NotNull Graphics2D g, @Nullable Caret caret, float x, float y, float w, float h, boolean isRtl) {
       g.fill(new Rectangle2D.Float(x, y, w, h));
       paintCaretRtlMarker(g, caret, x, y, w, isRtl);
     }
 
+    /**
+     * 油漆插入符号块
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
     private static void paintCaretBlock(@NotNull Graphics2D g, float x, float y, float w, float h) {
       g.fill(new Rectangle2D.Float(x, y, w, h));
     }
 
+    /**
+     * 画 Caret 下划线
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
     private static void paintCaretUnderscore(@NotNull Graphics2D g, float x, float y, float w, float h) {
       g.fill(new Rectangle2D.Float(x, y, w, h));
     }
 
+    /**
+     * 油漆插入符号框
+     * @param g
+     * @param x
+     * @param y
+     * @param w
+     * @param h
+     */
     private static void paintCaretBox(@NotNull Graphics2D g, float x, float y, float w, float h) {
       if (w > 2) {
         final float outlineWidth = (float) PaintUtil.alignToInt(1, g);
@@ -1385,6 +1667,16 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 绘制插入符号文本
+     * @param g
+     * @param caret
+     * @param caretColor
+     * @param x
+     * @param y
+     * @param topOverhang
+     * @param isRtl
+     */
     private void paintCaretText(@NotNull Graphics2D g,
                                 @Nullable Caret caret,
                                 @NotNull Color caretColor,
@@ -1412,6 +1704,15 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 绘制插入符号 Rtl 标记
+     * @param g
+     * @param caret
+     * @param x
+     * @param y
+     * @param w
+     * @param isRtl
+     */
     private void paintCaretRtlMarker(@NotNull Graphics2D g, @Nullable Caret caret, float x, float y, float w, boolean isRtl) {
       // We only draw the RTL marker for bar carets. If our bar is close to being a block, skip it. We keep the entire caret inside the
       // caret location width.
@@ -1426,10 +1727,20 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 边距宽度消费者
+     */
     private interface MarginWidthConsumer {
       void process(float width);
     }
 
+    /**
+     * 画线片段
+     * @param visLineIterator
+     * @param y
+     * @param painter
+     * @param marginWidthConsumer
+     */
     private void paintLineFragments(VisualLinesIterator visLineIterator,
                                     int y,
                                     LineFragmentPainter painter,
@@ -1557,6 +1868,11 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 获取折叠区域属性
+     * @param foldRegion
+     * @return
+     */
     private TextAttributes getFoldRegionAttributes(FoldRegion foldRegion) {
       TextAttributes selectionAttributes = isSelected(foldRegion) ? myEditor.getSelectionModel().getTextAttributes() : null;
       TextAttributes defaultAttributes = getDefaultAttributes();
@@ -1567,6 +1883,10 @@ public final class EditorPainter implements TextDrawingCallback {
       return mergeAttributes(mergeAttributes(selectionAttributes, foldAttributes), defaultAttributes);
     }
 
+    /**
+     * 获取默认属性
+     * @return
+     */
     @SuppressWarnings("UseJBColor")
     private TextAttributes getDefaultAttributes() {
       TextAttributes attributes = myEditor.getColorsScheme().getAttributes(HighlighterColors.TEXT);
@@ -1575,6 +1895,11 @@ public final class EditorPainter implements TextDrawingCallback {
       return attributes;
     }
 
+    /**
+     * 被选中
+     * @param foldRegion
+     * @return
+     */
     private static boolean isSelected(FoldRegion foldRegion) {
       int regionStart = foldRegion.getStartOffset();
       int regionEnd = foldRegion.getEndOffset();
@@ -1588,6 +1913,12 @@ public final class EditorPainter implements TextDrawingCallback {
       return false;
     }
 
+    /**
+     * 合并属性
+     * @param primary
+     * @param secondary
+     * @return
+     */
     private static TextAttributes mergeAttributes(TextAttributes primary, TextAttributes secondary) {
       if (primary == null) return secondary;
       if (secondary == null) return primary;
@@ -1601,6 +1932,9 @@ public final class EditorPainter implements TextDrawingCallback {
     }
   }
 
+  /**
+   * 线段画家
+   */
   interface LineFragmentPainter {
     void paintBeforeLineStart(TextAttributes attributes, boolean hasSoftWrap, int columnEnd, float xEnd, int y);
     void paint(VisualLineFragmentsIterator.Fragment fragment, int start, int end, TextAttributes attributes,
@@ -1608,6 +1942,9 @@ public final class EditorPainter implements TextDrawingCallback {
     void paintAfterLineEnd(IterationState iterationState, int columnStart, float x, int y);
   }
 
+  /**
+   * 线条空白绘画策略
+   */
   private static class LineWhitespacePaintingStrategy {
     private final boolean myWhitespaceShown;
     private final boolean myLeadingWhitespaceShown;
@@ -1618,6 +1955,10 @@ public final class EditorPainter implements TextDrawingCallback {
     private int currentLeadingEdge;
     private int currentTrailingEdge;
 
+    /**
+     * 线条空白绘画策略
+     * @param settings
+     */
     LineWhitespacePaintingStrategy(EditorSettings settings) {
       myWhitespaceShown = settings.isWhitespacesShown();
       myLeadingWhitespaceShown = settings.isLeadingWhitespaceShown();
@@ -1625,6 +1966,10 @@ public final class EditorPainter implements TextDrawingCallback {
       myTrailingWhitespaceShown = settings.isTrailingWhitespaceShown();
     }
 
+    /**
+     * 显示任何空白
+     * @return
+     */
     private boolean showAnyWhitespace() {
       return myWhitespaceShown && (myLeadingWhitespaceShown || myInnerWhitespaceShown || myTrailingWhitespaceShown);
     }
@@ -1636,6 +1981,11 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 显示偏移处的空白
+     * @param offset
+     * @return
+     */
     private boolean showWhitespaceAtOffset(int offset) {
       return myWhitespaceShown
              && (offset < currentLeadingEdge ? myLeadingWhitespaceShown :
@@ -1644,6 +1994,9 @@ public final class EditorPainter implements TextDrawingCallback {
     }
   }
 
+  /**
+   * X 校正器
+   */
   private interface XCorrector {
     float startX(int line);
     int lineWidth(int line, float x);
@@ -1732,6 +2085,9 @@ public final class EditorPainter implements TextDrawingCallback {
       }
     }
 
+    /**
+     * 右对齐
+     */
     final class RightAligned implements XCorrector {
       private final EditorView myView;
 
@@ -1801,6 +2157,9 @@ public final class EditorPainter implements TextDrawingCallback {
     }
   }
 
+  /**
+   * 延长线数据
+   */
   private static final class LineExtensionData {
     private final LineExtensionInfo info;
     private final LineLayout layout;
