@@ -42,6 +42,7 @@ public class DefaultLogger extends Logger {
   public void warn(String message, @Nullable Throwable t) {
     t = ensureNotControlFlow(t);
     System.err.println("WARN: " + message);
+    System.out.println(getStackTrace(false));
     if (t != null) t.printStackTrace(System.err);
   }
 
@@ -96,5 +97,24 @@ public class DefaultLogger extends Logger {
       //noinspection AssignmentToStaticFieldFromInstanceMethod
       ourMirrorToStderr = prev;
     });
+  }
+
+  /**
+   * 获取堆栈信息
+   * @param current 是否打印当前行
+   * @return
+   */
+  public static String getStackTrace(boolean current) {
+    StackTraceElement[] elements = Thread.currentThread().getStackTrace();
+    StringBuilder sb = new StringBuilder();
+    // 从一开始，应该就是不打印这个方法本身了
+    for (int i = current ? 0 : 2; i < elements.length; i++) {
+      StackTraceElement s = elements[i];
+      sb.append(s.getClassName()).append(".")
+        .append(s.getMethodName()).append("(")
+        .append(s.getFileName()).append(":")
+        .append(s.getLineNumber()).append(")").append("\n");
+    }
+    return sb.toString();
   }
 }

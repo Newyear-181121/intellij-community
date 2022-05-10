@@ -63,6 +63,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 
+/**
+ * 核心应用环境
+ */
 public class CoreApplicationEnvironment {
   private final CoreFileTypeRegistry myFileTypeRegistry;
   protected final MockApplication myApplication;

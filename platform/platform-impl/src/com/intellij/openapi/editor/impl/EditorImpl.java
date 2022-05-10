@@ -1144,6 +1144,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     if (start != end && (fontStyleChanged || foregroundColorChanged)) {
       myView.invalidateRange(start, end, fontStyleChanged);
     }
+    // 不在 批量折叠操作中
     if (!myFoldingModel.isInBatchFoldingOperation()) { // at the end of batch folding operation everything is repainted
       repaintLines(Math.max(0, startLine - 1), Math.min(endLine + 1, getDocument().getLineCount()));
     }
@@ -2035,6 +2036,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     return visualToLogicalPosition(xyToVisualPosition(pp));
   }
 
+  /**
+   * 逻辑到视觉线
+   * @param logicalLine
+   * @return
+   */
   private int logicalToVisualLine(int logicalLine) {
     return logicalLine < myDocument.getLineCount() ? offsetToVisualLine(myDocument.getLineStartOffset(logicalLine)) :
            logicalToVisualPosition(new LogicalPosition(logicalLine, 0)).line;
@@ -2154,6 +2160,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   }
 
   /**
+   * 重新绘制行
    * Asks to repaint all logical lines from the given {@code [start; end]} range.
    *
    * @param startLine start logical line to repaint (inclusive)
@@ -2162,6 +2169,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   void repaintLines(int startLine, int endLine) {
     if (!isShowing()) return;
 
+    //
     int startVisualLine = logicalToVisualLine(startLine);
     int endVisualLine = myDocument.getTextLength() <= 0
                      ? 0
@@ -2170,12 +2178,14 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   }
 
   /**
+   * 在提供的范围内重新绘制视线
    * Repaints visual lines in provided range (inclusive on both ends)
    */
   private void doRepaint(int startVisualLine, int endVisualLine) {
     Rectangle visibleArea = getScrollingModel().getVisibleArea();
     int yStart = visualLineToY(startVisualLine);
     int height = visualLineToYRange(endVisualLine)[1] + 2 - yStart;
+    // 重绘编辑器组件
     myEditorComponent.repaintEditorComponent(visibleArea.x, yStart, visibleArea.x + visibleArea.width, height);
     myGutterComponent.repaint(0, yStart, myGutterComponent.getWidth(), height);
   }
@@ -2288,6 +2298,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     }
   }
 
+  /**
+   * 逃生天沟可达线  -- 机器翻译， 我看不懂了。。
+   * @param offsetStart
+   * @param offsetEnd
+   */
   private void escapeGutterAccessibleLine(int offsetStart, int offsetEnd) {
     int startVisLine = offsetToVisualLine(offsetStart);
     int endVisLine = offsetToVisualLine(offsetEnd);
@@ -4049,6 +4064,10 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     myDropHandler = dropHandler;
   }
 
+  /**
+   * 设置突出显示谓词
+   * @param filter
+   */
   public void setHighlightingPredicate(@Nullable Predicate<? super RangeHighlighter> filter) {
     if (myHighlightingFilter == filter) return;
     Predicate<? super RangeHighlighter> oldFilter = myHighlightingFilter;

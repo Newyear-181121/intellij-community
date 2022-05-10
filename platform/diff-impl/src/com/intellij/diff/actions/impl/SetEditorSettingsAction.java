@@ -233,6 +233,10 @@ public class SetEditorSettingsAction extends ActionGroup implements DumbAware {
       return myOptions;
     }
 
+    /**
+     * 应用默认高亮级别
+     * @param editors
+     */
     @Override
     public void applyDefaults(@NotNull List<? extends Editor> editors) {
       apply(myTextSettings.getHighlightingLevel());

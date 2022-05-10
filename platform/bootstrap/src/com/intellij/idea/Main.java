@@ -6,6 +6,7 @@ import com.intellij.ide.BootstrapClassLoaderUtil;
 import com.intellij.ide.WindowsCommandLineProcessor;
 import com.intellij.ide.startup.StartupActionScriptManager;
 import com.intellij.openapi.application.PathManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.NlsSafe;
 import com.intellij.util.lang.PathClassLoader;
 import org.jetbrains.annotations.Nls;
@@ -62,9 +63,14 @@ public final class Main {
   private static boolean hasGraphics = true;
   private static boolean isLightEdit;
 
+  private static Logger logger = Logger.getInstance(Main.class);
+
   private Main() { }
 
   public static void main(String[] args) {
+    logger.debug("开始启动项目!");
+    logger.info("开始启动项目");
+    logger.warn("开始启动项目");
     LinkedHashMap<String, Long> startupTimings = new LinkedHashMap<>(6);
     startupTimings.put("startup begin", System.nanoTime());
 

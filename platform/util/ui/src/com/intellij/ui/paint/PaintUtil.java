@@ -115,6 +115,7 @@ public final class PaintUtil {
   }
 
   /**
+   * 对齐到 int
    * @see #alignToInt(double, ScaleContext, RoundingMode, ParityMode)
    */
   public static double alignToInt(double usrValue, @NotNull Graphics2D g) {

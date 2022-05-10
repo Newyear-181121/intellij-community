@@ -163,6 +163,7 @@ public enum RectanglePainter2D implements RegionPainter2D<Double> {
     }
 
     /**
+     * 填充一个矩形。
      * Fills a rectangle.
      *
      * @param g the {@code Graphics2D} object to paint on
