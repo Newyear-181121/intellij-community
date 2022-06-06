@@ -9,6 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
+ * 亮度编辑
+ * 一个围绕 {@code LightEditService} 方法的包装类。
  * A wrapping class around {@code LightEditService} methods.
  */
 public final class LightEdit {

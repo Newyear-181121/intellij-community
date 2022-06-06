@@ -10,6 +10,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 高亮器工厂
+ */
 public final class HighlighterFactory {
   private HighlighterFactory() {}
 

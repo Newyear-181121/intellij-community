@@ -12,6 +12,9 @@ import org.jetbrains.jps.model.fileTypes.FileNameMatcherFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 轻型编辑文件模式
+ */
 public class LightEditFilePatterns {
   public static final String[] DEFAULT_PATTERNS = {
     "*.txt", "*.log", "*.md", "*.json", "*.xml", "*.sh", "*.ini", "*.yml", "*.conf"};

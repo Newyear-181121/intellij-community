@@ -183,6 +183,7 @@ public final class Main {
     return false;
   }
 
+
   @TestOnly
   public static void setHeadlessInTestMode(boolean headless) {
     isHeadless = headless;
@@ -271,6 +272,7 @@ public final class Main {
       textPane.setEditable(false);
       textPane.setText(message.replaceAll("\t", "    "));
       textPane.setBackground(UIManager.getColor("Panel.background"));
+      // 设置插入符号位置
       textPane.setCaretPosition(0);
       JScrollPane scrollPane =
         new JScrollPane(textPane, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
