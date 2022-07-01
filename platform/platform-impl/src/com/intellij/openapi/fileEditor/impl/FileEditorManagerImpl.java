@@ -20,6 +20,7 @@ import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
+import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
@@ -169,6 +170,8 @@ public class FileEditorManagerImpl extends FileEditorManagerEx implements Persis
   private final MessageListenerList<FileEditorManagerListener> myListenerList;
 
   public FileEditorManagerImpl(@NotNull Project project) {
+    System.out.println("文件编辑器管理器开始初始化：参数是：" + project + " \n ");
+    System.out.println(DefaultLogger.getStackTrace(false));
     myProject = project;
     myDockManager = DockManager.getInstance(myProject);
     myListenerList = new MessageListenerList<>(myProject.getMessageBus(), FileEditorManagerListener.FILE_EDITOR_MANAGER);

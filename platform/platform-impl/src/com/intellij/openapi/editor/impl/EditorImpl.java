@@ -20,6 +20,7 @@ import com.intellij.openapi.application.TransactionGuard;
 import com.intellij.openapi.application.TransactionGuardImpl;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.UndoConfirmationPolicy;
+import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.impl.DiffUtil;
 import com.intellij.openapi.editor.*;
@@ -779,6 +780,8 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   private boolean myScrollingToCaret;
 
   EditorImpl(@NotNull Document document, boolean viewer, @Nullable Project project, @NotNull EditorKind kind) {
+    System.out.println("编辑器开始初始化：参数是：" + document + " \n " + viewer + " \n " + project + " \n " + kind);
+    System.out.println(DefaultLogger.getStackTrace(false));
     // 断言是调度线程
     assertIsDispatchThread();
     myProject = project;
