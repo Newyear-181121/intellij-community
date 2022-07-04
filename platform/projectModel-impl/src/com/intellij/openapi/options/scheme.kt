@@ -15,6 +15,9 @@ interface ExternalizableScheme : Scheme {
   fun setName(value: String)
 }
 
+/**
+ * 方案管理工厂
+ */
 abstract class SchemeManagerFactory {
   companion object {
     @JvmStatic
@@ -25,6 +28,7 @@ abstract class SchemeManagerFactory {
   }
 
   /**
+   * 目录名称
    * directoryName - like "keymaps".
    */
   @JvmOverloads

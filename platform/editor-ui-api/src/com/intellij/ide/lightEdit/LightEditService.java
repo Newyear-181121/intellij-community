@@ -13,6 +13,9 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.file.Path;
 import java.util.Collection;
 
+/**
+ * 编辑服务
+ */
 @ApiStatus.Experimental
 public interface LightEditService {
   String WINDOW_NAME = "LightEdit";

@@ -10,6 +10,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
+/**
+ * 高亮编辑器管理器
+ */
 @ApiStatus.Experimental
 public interface LightEditorManager {
   void addListener(@NotNull LightEditorListener listener);
@@ -24,15 +27,38 @@ public interface LightEditorManager {
 
   void closeEditor(@NotNull LightEditorInfo editorInfo);
 
+  /**
+   * 包含未保存的文档
+   * @return
+   */
   boolean containsUnsavedDocuments();
 
+  /**
+   * 是否允许隐式保存
+   * @param document
+   * @return
+   */
   boolean isImplicitSaveAllowed(@NotNull Document document);
 
+  /**
+   * 获取打开的文件
+   * @return
+   */
   @NotNull
   Collection<VirtualFile> getOpenFiles();
 
+  /**
+   * 获取编辑器
+   * @param virtualFile
+   * @return
+   */
   @NotNull
   Collection<LightEditorInfo> getEditors(@NotNull VirtualFile virtualFile);
 
+  /**
+   * 是文件打开
+   * @param file
+   * @return
+   */
   boolean isFileOpen(@NotNull VirtualFile file);
 }

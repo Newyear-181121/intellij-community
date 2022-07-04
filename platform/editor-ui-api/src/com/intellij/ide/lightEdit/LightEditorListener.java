@@ -8,6 +8,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.EventListener;
 
+/**
+ * 高亮编辑器监听器
+ */
 @ApiStatus.Experimental
 public interface LightEditorListener extends EventListener {
   default void afterCreate(@NotNull LightEditorInfo editorInfo) {}

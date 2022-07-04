@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
+ * 编辑器尺寸管理器
  * Calculates width (in pixels) of editor contents.
  */
 final class EditorSizeManager implements PrioritizedDocumentListener, Disposable, FoldingListener, InlayModel.Listener, Dumpable {
@@ -91,6 +92,9 @@ final class EditorSizeManager implements PrioritizedDocumentListener, Disposable
     myEditor.getInlayModel().addListener(this, this);
   }
 
+  /**
+   * 处置
+   */
   @Override
   public void dispose() {
     myEditor.getSoftWrapModel().getApplianceManager().removeListener(mySoftWrapChangeListener);
@@ -511,6 +515,11 @@ final class EditorSizeManager implements PrioritizedDocumentListener, Disposable
     return regions == null || regions.length == 0;
   }
 
+  /**
+   * 使范围无效
+   * @param startOffset
+   * @param endOffset
+   */
   private void doInvalidateRange(int startOffset, int endOffset) {
     if (checkDirty()) return;
     int startVisualLine = myView.offsetToVisualLine(startOffset, false);
