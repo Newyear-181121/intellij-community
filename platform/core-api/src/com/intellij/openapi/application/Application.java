@@ -180,6 +180,8 @@ public interface Application extends ComponentManager {
   void assertReadAccessNotAllowed();
 
   /**
+   * 断言是调度线程
+   * 断言是否正在从事件调度线程调用该方法。
    * Asserts whether the method is being called from the event dispatch thread.
    */
   void assertIsDispatchThread();

@@ -5,6 +5,8 @@ import com.intellij.ide.RecentProjectsManagerBase;
 import com.intellij.ide.plugins.IdeaPluginDescriptorImpl;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 public final class CommandLineArgs {
   public static final String DISABLE_NON_BUNDLED_PLUGINS = "disableNonBundledPlugins";
   public static final String DONT_REOPEN_PROJECTS = "dontReopenProjects";
@@ -13,6 +15,7 @@ public final class CommandLineArgs {
   public static final String NO_SPLASH = "nosplash";
 
   public static void parse(String[] args) {
+    StartUtils.log(true, "命令行参数解析，", "参数是：", Arrays.asList(args));
     for (String arg : args) {
       if (arg.equalsIgnoreCase(DISABLE_NON_BUNDLED_PLUGINS)) {
         IdeaPluginDescriptorImpl.disableNonBundledPlugins = true;

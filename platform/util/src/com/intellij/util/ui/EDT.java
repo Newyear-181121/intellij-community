@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.*;
 
 /**
+ * <p>此类为当前的 Swing Event Dispatch 线程提供静态缓存。由于 {@code EventQueue.isDispatchThread()} 调用代价高昂，因此此类提供了一种更快的方法来检查当前线程是否为 EDT。
+ * @implNote 请注意，EDT 会随着时间的推移而改变，这个类试图整理出所有的变化，伴随着 IdeEventQueue。
+ * 有关详细信息，请参阅 {@link updateEdt()} 用法
  * <p>This class provides a static cache for a current Swing Event Dispatch thread. As {@code EventQueue.isDispatchThread()} calls
  * are expensive, this class provides a faster way to check whether the current thread is EDT or not.
  *
@@ -21,6 +24,7 @@ public final class EDT {
   }
 
   /**
+   * 除非您知道自己在做什么，否则不要使用它。更新缓存的 EDT 线程。
    * Do not use it unless you know what you are doing. Updates cached EDT thread.
    */
   @ApiStatus.Internal

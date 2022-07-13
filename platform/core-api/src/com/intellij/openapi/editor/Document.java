@@ -27,6 +27,9 @@ import java.beans.PropertyChangeListener;
  */
 public interface Document extends UserDataHolder {
   Document[] EMPTY_ARRAY = new Document[0];
+  /**
+   * 道具可写
+   */
   @NonNls
   String PROP_WRITABLE = "writable";
 

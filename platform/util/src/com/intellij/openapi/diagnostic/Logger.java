@@ -89,6 +89,10 @@ public abstract class Logger {
   }
 
   public static @NotNull Logger getInstance(@NotNull Class<?> cl) {
+    //System.out.println("类" + cl.getName() +" 开始初始化日志对象！");
+    //if (cl.getName().contains("Editor")) {
+    //  System.out.println(DefaultLogger.getStackTrace(false));
+    //}
     return ourFactory.getLoggerInstance("#" + cl.getName());
   }
 

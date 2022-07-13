@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * 文件编辑器提供程序
  * Should be registered via {@link #EP_FILE_EDITOR_PROVIDER}.
  *
  * @author Anton Katilin

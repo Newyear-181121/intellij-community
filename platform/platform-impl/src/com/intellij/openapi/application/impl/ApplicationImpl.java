@@ -15,6 +15,7 @@ import com.intellij.idea.ApplicationLoader;
 import com.intellij.idea.IdeaLogger;
 import com.intellij.idea.Main;
 import com.intellij.idea.StartupUtil;
+import com.intellij.idea.StartUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.*;
 import com.intellij.openapi.application.ex.ApplicationEx;
@@ -164,6 +165,8 @@ public class ApplicationImpl extends ClientAwareComponentManager implements Appl
   // this constructor must be called only by ApplicationLoader
   public ApplicationImpl(boolean isInternal, boolean isHeadless, boolean isCommandLine, @NotNull Thread edtThread) {
     super(null);
+
+    StartUtils.log(true, "声明 ApplicationImpl, 参数是：", isInternal, isHeadless, isCommandLine, edtThread);
 
     registerServiceInstance(TransactionGuard.class, myTransactionGuard, ComponentManagerImpl.fakeCorePluginDescriptor);
     registerServiceInstance(ApplicationInfo.class, ApplicationInfoImpl.getShadowInstance(), ComponentManagerImpl.fakeCorePluginDescriptor);

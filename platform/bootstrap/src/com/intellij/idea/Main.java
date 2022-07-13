@@ -23,6 +23,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Properties;
@@ -46,7 +47,13 @@ public final class Main {
   public static final int ACTIVATE_DISPOSING = 16;
 
   public static final String FORCE_PLUGIN_UPDATES = "idea.force.plugin.updates";
+  /**
+   * CWM 主机命令
+   */
   public static final String CWM_HOST_COMMAND = "cwmHost";
+  /**
+   * CWM HOST NO LOBBY 命令
+   */
   public static final String CWM_HOST_NO_LOBBY_COMMAND = "cwmHostNoLobby";
 
   private static final String MAIN_RUNNER_CLASS_NAME = "com.intellij.idea.StartupUtil";
@@ -68,9 +75,8 @@ public final class Main {
   private Main() { }
 
   public static void main(String[] args) {
-    logger.debug("开始启动项目!");
-    logger.info("开始启动项目");
-    logger.warn("开始启动项目");
+    logger.warn("开始启动项目, 启动参数是：" );
+    Arrays.stream(args).forEach(System.out::println);
     LinkedHashMap<String, Long> startupTimings = new LinkedHashMap<>(6);
     startupTimings.put("startup begin", System.nanoTime());
 
@@ -91,6 +97,7 @@ public final class Main {
   }
 
   private static void bootstrap(String[] args, LinkedHashMap<String, Long> startupTimings) throws Throwable {
+    // 加载属性
     startupTimings.put("properties loading", System.nanoTime());
     PathManager.loadProperties();
 

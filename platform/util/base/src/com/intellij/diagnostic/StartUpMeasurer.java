@@ -16,6 +16,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * 启动测量仪
+ */
 public final class StartUpMeasurer {
   static final AtomicReference<LoadingState> currentState = new AtomicReference<>(LoadingState.BOOTSTRAP);
 
@@ -97,6 +100,12 @@ public final class StartUpMeasurer {
     addActivity(activity);
   }
 
+  /**
+   * 开始活动
+   * @param name
+   * @param category
+   * @return
+   */
   public static @NotNull Activity startActivity(@NonNls @NotNull String name, @NotNull ActivityCategory category) {
     return new ActivityImpl(name, getCurrentTime(), /* parent = */ null, /* pluginId = */ null, category);
   }

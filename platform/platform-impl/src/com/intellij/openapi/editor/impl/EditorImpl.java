@@ -8,6 +8,7 @@ import com.intellij.ide.dnd.DnDManager;
 import com.intellij.ide.lightEdit.LightEdit;
 import com.intellij.ide.lightEdit.LightEditCompatible;
 import com.intellij.ide.ui.UISettings;
+import com.intellij.idea.StartUtils;
 import com.intellij.internal.statistic.service.fus.collectors.UIEventLogger;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
@@ -20,7 +21,6 @@ import com.intellij.openapi.application.TransactionGuard;
 import com.intellij.openapi.application.TransactionGuardImpl;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.UndoConfirmationPolicy;
-import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.impl.DiffUtil;
 import com.intellij.openapi.editor.*;
@@ -780,10 +780,9 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   private boolean myScrollingToCaret;
 
   EditorImpl(@NotNull Document document, boolean viewer, @Nullable Project project, @NotNull EditorKind kind) {
-    System.out.println("编辑器开始初始化：参数是：" + document + " \n " + viewer + " \n " + project + " \n " + kind);
-    System.out.println(DefaultLogger.getStackTrace(false));
+    StartUtils.log(true, "初始化编辑器！", document, viewer, project, kind);
     // 断言是调度线程
-    assertIsDispatchThread();
+     assertIsDispatchThread();
     myProject = project;
     myDocument = (DocumentEx)document;
     // 创建绑定颜色方案代表
@@ -964,6 +963,9 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
 
     new FoldingPopupManager(this);
 
+    /**
+     * 编辑器组件实现
+     */
     myEditorComponent = new EditorComponentImpl(this);
     myVerticalScrollBar = (MyScrollBar)myScrollPane.getVerticalScrollBar();
     if (shouldScrollBarBeOpaque()) myVerticalScrollBar.setOpaque(true);
@@ -1018,6 +1020,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
 
     PropertyChangeListener propertyChangeListener = e -> {
       if (Document.PROP_WRITABLE.equals(e.getPropertyName())) {
+        StartUtils.log(true, "编辑器文档重写，重绘");
         myEditorComponent.repaint();
       }
     };
@@ -1155,6 +1158,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     updateCaretCursor();
   }
 
+  /**
+   * 镶嵌更新
+   * @param inlay
+   * @param changeFlags
+   */
   private void onInlayUpdated(@NotNull Inlay<?> inlay, int changeFlags) {
     if (myDocument.isInBulkUpdate() || myInlayModel.isInBatchMode()) return;
     if ((changeFlags & InlayModel.ChangeFlags.GUTTER_ICON_PROVIDER_CHANGED) != 0) updateGutterSize();
@@ -1189,7 +1197,12 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     updateCaretCursor();
   }
 
+  /**
+   * 如果下面的工具窗口覆盖，则将插入符号移到视图中
+   * @param e
+   */
   private void moveCaretIntoViewIfCoveredByToolWindowBelow(@NotNull VisibleAreaEvent e) {
+    StartUtils.log("编辑器的滚动模型记录");
     Rectangle oldRectangle = e.getOldRectangle();
     Rectangle newRectangle = e.getNewRectangle();
     if (!myScrollingToCaret &&
@@ -1236,6 +1249,10 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     return ColorUtil.isDark(getBackgroundColor());
   }
 
+  /**
+   * 重新绘制插入符号区域
+   * @param e
+   */
   private void repaintCaretRegion(@NotNull CaretEvent e) {
     CaretImpl caretImpl = (CaretImpl)e.getCaret();
     if (caretImpl != null) {
@@ -2113,6 +2130,12 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     ContainerUtil.add(listener, myHighlighterListeners, parentDisposable);
   }
 
+  /**
+   * 重绘
+   * @param startOffset
+   * @param endOffset
+   * @param invalidateTextLayout 使文本布局无效
+   */
   void repaint(int startOffset, int endOffset, boolean invalidateTextLayout) {
     if (myDocument.isInBulkUpdate() || myInlayModel.isInBatchMode()) {
       return;

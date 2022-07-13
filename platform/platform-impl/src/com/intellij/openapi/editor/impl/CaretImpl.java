@@ -39,6 +39,9 @@ import org.jetbrains.annotations.TestOnly;
 
 import java.awt.*;
 
+/**
+ * 插入符号 实现
+ */
 public class CaretImpl extends UserDataHolderBase implements Caret, Dumpable {
   private static final Logger LOG = Logger.getInstance(CaretImpl.class);
   private static final Key<CaretVisualAttributes> VISUAL_ATTRIBUTES_KEY = new Key<>("CaretAttributes");
@@ -57,6 +60,9 @@ public class CaretImpl extends UserDataHolderBase implements Caret, Dumpable {
   int myVisualColumnAdjustment;
   private int myVisualLineStart;
   private int myVisualLineEnd;
+  /**
+   * 我的跳过更改请求
+   */
   private boolean mySkipChangeRequests;
   private int myColumnNumberForCloning = -1;
   private int myDesiredSelectionStartColumn = -1;
@@ -143,6 +149,13 @@ public class CaretImpl extends UserDataHolderBase implements Caret, Dumpable {
     return isValid;
   }
 
+  /**
+   * 相对移动插入符号
+   * @param _columnShift   列位移
+   * @param lineShift      the number of lines to move the caret by.  移动插入符号的行数。
+   * @param withSelection  if true, the caret move should extend the selection in the document.  如果为真，插入符号移动应该扩展文档中的选择。
+   * @param scrollToCaret  if true, the document should be scrolled so that the caret is visible after the move.  如果为 true，则应滚动文档以使插入符号在移动后可见
+   */
   @Override
   public void moveCaretRelatively(final int _columnShift, final int lineShift, final boolean withSelection, final boolean scrollToCaret) {
     assertIsDispatchThread();
@@ -315,6 +328,10 @@ public class CaretImpl extends UserDataHolderBase implements Caret, Dumpable {
     });
   }
 
+  /**
+   * 移动到逻辑位置
+   * @param pos the position to move to.
+   */
   @Override
   public void moveToLogicalPosition(@NotNull final LogicalPosition pos) {
     myCaretModel.doWithCaretMerging(() -> moveToLogicalPosition(pos, false, null, false, true));
@@ -469,6 +486,9 @@ public class CaretImpl extends UserDataHolderBase implements Caret, Dumpable {
     return null;
   }
 
+  /**
+   * 更新逻辑位置的偏移量
+   */
   private void updateOffsetsFromLogicalPosition() {
     int offset = myEditor.logicalPositionToOffset(myLogicalCaret);
     PositionMarker oldMarker = myPositionMarker;
@@ -478,6 +498,10 @@ public class CaretImpl extends UserDataHolderBase implements Caret, Dumpable {
     myLogicalColumnAdjustment = myLogicalCaret.column - myEditor.offsetToLogicalPosition(offset).column;
   }
 
+  /**
+   * 请求重绘
+   * @param oldVerticalInfo
+   */
   private void requestRepaint(VerticalInfo oldVerticalInfo) {
     if (oldVerticalInfo == null) oldVerticalInfo = new VerticalInfo(0, 0, myEditor.getLineHeight());
     if (myVerticalInfo == null) myVerticalInfo = new VerticalInfo(0, 0, myEditor.getLineHeight());

@@ -286,6 +286,11 @@ public class DarculaLaf extends BasicLookAndFeel implements UserDataHolder {
     ideEventQueueInitialized(IdeEventQueue.getInstance());
   }
 
+  /**
+   * 创建基础 La F
+   * @return
+   * @throws Throwable
+   */
   @ApiStatus.Internal
   public static @NotNull LookAndFeel createBaseLaF() throws Throwable {
     if (SystemInfoRt.isMac) {

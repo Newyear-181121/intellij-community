@@ -25,12 +25,20 @@ import com.intellij.openapi.editor.ScrollingModel;
 public interface ScrollingModelEx extends ScrollingModel {
 
   /**
+   * 累积视口更改
+   * <br/>
+   * 要求当前模型避免更改视口位置并记住它。在 {@link flushViewportChanges()} 处理期间可能会应用该记住的位置。
+   * <br/>
    * Asks current model to avoid changing viewport position and just remember it instead. That remembered position
    * may be applied later during {@link #flushViewportChanges()} processing.
    */
   void accumulateViewportChanges();
 
   /**
+   * 刷新视口更改
+   * <br/>
+   *如果在它之前调用 {@link accumulateViewportChanges()} 或者自上次调用 {@link accumulateViewportChanges()} 后没有收到任何视口位置更改请求，则不执行任何操作。 <p> 将记住的视口位置更改请求应用到编辑器。
+   *
    * Does nothing if {@link #accumulateViewportChanges()} is called before it or if no requests for viewport location
    * change arrived since the last time {@link #accumulateViewportChanges()} is called.
    * <p/>

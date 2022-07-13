@@ -19,6 +19,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
+ * 文档标记模型
+ * 管理每个项目的文档标记模型。
  * Manages per-project markup models of documents.
  */
 public final class DocumentMarkupModel {

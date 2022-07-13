@@ -10,6 +10,7 @@ import com.intellij.ide.dnd.DnDManager;
 import com.intellij.ide.dnd.DnDManagerImpl;
 import com.intellij.ide.plugins.StartupAbortedException;
 import com.intellij.ide.ui.UISettings;
+import com.intellij.idea.StartUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.*;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;
@@ -43,7 +44,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 import sun.awt.AppContext;
-import sun.awt.SunToolkit;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.ComboPopup;
@@ -193,12 +193,15 @@ public final class IdeEventQueue extends EventQueue {
     EventQueue systemEventQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
     assert !(systemEventQueue instanceof IdeEventQueue) : systemEventQueue;
     systemEventQueue.push(this);
+    StartUtils.log(true, "初始换事件队列，同时加载idea的事件队列， 并且注册到系统的事件队列", systemEventQueue);
+
 
     EDT.updateEdt();
 
     KeyboardFocusManager keyboardFocusManager = IdeKeyboardFocusManager.replaceDefault();
     keyboardFocusManager.addPropertyChangeListener("permanentFocusOwner", e -> {
       Application app = ApplicationManager.getApplication();
+      // 我们可以在应用程序初始化之前获得焦点事件
       // we can get focus event before application is initialized
       if (app != null) {
         app.assertIsDispatchThread();
@@ -292,6 +295,11 @@ public final class IdeEventQueue extends EventQueue {
     Disposer.register(parentDisposable, () -> myActivityListeners.remove(runnable));
   }
 
+  /**
+   * 添加调度程序
+   * @param dispatcher
+   * @param parent
+   */
   public void addDispatcher(@NotNull EventDispatcher dispatcher, @Nullable Disposable parent) {
     _addProcessor(dispatcher, parent, myDispatchers);
   }

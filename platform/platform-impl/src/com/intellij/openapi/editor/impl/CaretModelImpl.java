@@ -33,6 +33,9 @@ import java.awt.datatransfer.StringSelection;
 import java.util.List;
 import java.util.*;
 
+/**
+ * 插入符号模型实现
+ */
 public final class CaretModelImpl implements CaretModel, PrioritizedDocumentListener, Disposable, Dumpable, InlayModel.Listener {
   private static final RegistryValue MAX_CARET_COUNT = Registry.get("editor.max.caret.count");
 
@@ -74,11 +77,17 @@ public final class CaretModelImpl implements CaretModel, PrioritizedDocumentList
     myCarets.add(myPrimaryCaret);
   }
 
+  /**
+   * 关于批量文档更新开始
+   */
   void onBulkDocumentUpdateStarted() {
   }
 
+  /**
+   * 关于批量文档更新完成
+   */
   void onBulkDocumentUpdateFinished() {
-    doWithCaretMerging(() -> {}); // do caret merging if it's not scheduled for later
+    doWithCaretMerging(() -> {}); // do caret merging if it's not scheduled for later  如果没有安排稍后进行插入符号合并
   }
 
   @Override
@@ -107,6 +116,9 @@ public final class CaretModelImpl implements CaretModel, PrioritizedDocumentList
     return EditorDocumentPriorities.CARET_MODEL;
   }
 
+  /**
+   * 处置
+   */
   @Override
   public void dispose() {
     for (CaretImpl caret : myCarets) {
@@ -140,6 +152,10 @@ public final class CaretModelImpl implements CaretModel, PrioritizedDocumentList
     myCaretListeners.removeListener(listener);
   }
 
+  /**
+   * 获取文本属性
+   * @return
+   */
   @Override
   @NotNull
   public TextAttributes getTextAttributes() {
@@ -168,6 +184,10 @@ public final class CaretModelImpl implements CaretModel, PrioritizedDocumentList
     return Math.max(1, MAX_CARET_COUNT.asInteger());
   }
 
+  /**
+   * 获取当前插入符号
+   * @return
+   */
   @Override
   @NotNull
   public CaretImpl getCurrentCaret() {
@@ -410,6 +430,10 @@ public final class CaretModelImpl implements CaretModel, PrioritizedDocumentList
     return firstCaret.getSelectionStart() == firstCaret.getSelectionEnd() && firstCaret.hasVirtualSelection();
   }
 
+  /**
+   * 使用插入符号合并
+   * @param runnable
+   */
   void doWithCaretMerging(@NotNull Runnable runnable) {
     EditorImpl.assertIsDispatchThread();
     if (myPerformCaretMergingAfterCurrentOperation) {

@@ -6,10 +6,21 @@ import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.atomic.AtomicLong;
 
 // must be accessible via "ClassLoader.getSystemClassLoader().loadClass(fp).newInstance()" from java.util.concurrent.ForkJoinPool.makeCommonPool()
+
+/**
+ * idea 的线程池工厂。
+ */
 public final class IdeaForkJoinWorkerThreadFactory implements ForkJoinPool.ForkJoinWorkerThreadFactory {
+  /**
+   *  好像是用于设置线程池的并行配置。
+   *  <br/>
+   * 必须在启动时尽早调用，但在 Main.setFlags() 之后
+   * @param headless
+   */
   // must be called in the earliest possible moment on startup, but after Main.setFlags()
   public static void setupForkJoinCommonPool(boolean headless) {
     System.setProperty("java.util.concurrent.ForkJoinPool.common.threadFactory", IdeaForkJoinWorkerThreadFactory.class.getName());
+    // 未指定并行度
     boolean parallelismWasNotSpecified = System.getProperty("java.util.concurrent.ForkJoinPool.common.parallelism") == null;
     if (parallelismWasNotSpecified) {
       int N_CPU = Runtime.getRuntime().availableProcessors();

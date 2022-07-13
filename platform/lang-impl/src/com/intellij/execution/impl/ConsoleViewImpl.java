@@ -22,6 +22,7 @@ import com.intellij.ide.OccurenceNavigator;
 import com.intellij.ide.plugins.DynamicPluginListener;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.startup.StartupManagerEx;
+import com.intellij.idea.StartUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
@@ -858,8 +859,13 @@ public class ConsoleViewImpl extends JPanel implements ConsoleView, ObservableCo
     return editor;
   }
 
+  /**
+   * 创建控制台编辑器
+   * @return
+   */
   @NotNull
   protected EditorEx doCreateConsoleEditor() {
+    StartUtils.log("创建控制台编辑器!", "项目中的参数有这些", myProject, myState);
     return ConsoleViewUtil.setupConsoleEditor(myProject, true, false);
   }
 

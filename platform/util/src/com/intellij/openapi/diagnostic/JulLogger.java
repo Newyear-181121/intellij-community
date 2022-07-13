@@ -66,6 +66,7 @@ public class JulLogger extends Logger {
   @Override
   public void warn(String message, @Nullable Throwable t) {
     myLogger.log(java.util.logging.Level.WARNING, message, t);
+    //System.out.println(DefaultLogger.getStackTrace(false));
   }
 
   @Override

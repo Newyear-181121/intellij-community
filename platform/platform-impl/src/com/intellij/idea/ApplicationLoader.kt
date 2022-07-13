@@ -359,6 +359,9 @@ fun preloadServices(modules: Sequence<IdeaPluginDescriptorImpl>,
   return result.sync
 }
 
+/**
+ * 添加激活和 Windows CLI 侦听器
+ */
 private fun addActivateAndWindowsCliListeners() {
   StartupUtil.addExternalInstanceListener { rawArgs ->
     LOG.info("External instance command received")

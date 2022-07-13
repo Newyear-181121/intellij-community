@@ -604,11 +604,19 @@ public final class PluginManagerCore {
     return applied;
   }
 
+  /**
+   * 调度描述符加载
+   * 避免暴露 DescriptorListLoadingContext 类的单独方法
+   */
   // separate method to avoid exposing of DescriptorListLoadingContext class
   public static void scheduleDescriptorLoading() {
     getOrScheduleLoading();
   }
 
+  /**
+   * 获取或安排加载
+   * @return
+   */
   private static synchronized @NotNull CompletableFuture<PluginSet> getOrScheduleLoading() {
     CompletableFuture<PluginSet> future = initFuture;
     if (future != null) {
@@ -976,6 +984,12 @@ public final class PluginManagerCore {
     };
   }
 
+  /**
+   * 加载和初始化插件
+   * @param context
+   * @param coreLoader
+   * @return
+   */
   @SuppressWarnings("NonPrivateFieldAccessedInSynchronizedContext")
   private static synchronized @NotNull PluginSet loadAndInitializePlugins(@NotNull DescriptorListLoadingContext context,
                                                                           @NotNull ClassLoader coreLoader) {

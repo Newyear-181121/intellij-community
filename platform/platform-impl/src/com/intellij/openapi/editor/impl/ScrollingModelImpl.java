@@ -2,6 +2,7 @@
 package com.intellij.openapi.editor.impl;
 
 import com.intellij.ide.RemoteDesktopService;
+import com.intellij.idea.StartUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
@@ -52,6 +53,7 @@ public final class ScrollingModelImpl implements ScrollingModelEx {
   private final DocumentListener myDocumentListener = new DocumentListener() {
     @Override
     public void beforeDocumentChange(@NotNull DocumentEvent e) {
+      StartUtils.log("文档变更前记录一下");
       if (!mySupplier.getEditor().getDocument().isInBulkUpdate()) {
         cancelAnimatedScrolling(true);
       }

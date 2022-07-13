@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
+ * 表示编辑器中的特定插入符号实例。提供查询和修改插入符号位置和插入符号关联选择的方法。
+ * 该接口的实例应该是从CaretModel实例中获取的，而不是显式创建的。
+ * <br/>
  * Represents a specific caret instance in the editor.
  * Provides methods to query and modify caret position and caret's associated selection.
  * <p>
@@ -27,6 +30,8 @@ public interface Caret extends UserDataHolderEx, Disposable {
   CaretModel getCaretModel();
 
   /**
+   * 告诉这个插入符号是否有效，即当前是否被插入符号模型识别。插入符号自创建以来一直有效，直到从插入符号模型中删除为止。
+   * <br/>
    * Tells whether this caret is valid, i.e. recognized by the caret model currently. Caret is valid since its creation till its
    * removal from caret model.
    *

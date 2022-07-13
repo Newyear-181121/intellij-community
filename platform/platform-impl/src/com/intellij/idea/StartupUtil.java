@@ -99,12 +99,24 @@ public final class StartupUtil {
 
   private StartupUtil() { }
 
-  /** Called via reflection from {@link Main#bootstrap}. */
+  /**
+   * 启动起的开始执行， 通过反射调用指定类，的启动工具。
+   * 通过来自 {@link Mainbootstrap} 的反射调用。
+   * Called via reflection from {@link Main#bootstrap}.
+   *
+   * @param mainClass 主类
+   * @param isHeadless  是 无头的 ？？
+   * @param setFlagsAgain  再次设置标志
+   * @param args   启动参数
+   * @param startupTimings  启动时间
+   * @throws Exception 异常
+   */
   public static void start(@NotNull String mainClass,
                            boolean isHeadless,
                            boolean setFlagsAgain,
                            String @NotNull [] args,
                            @NotNull LinkedHashMap<String, Long> startupTimings) throws Exception {
+    StartUtils.log(true, "启动工具开始方法开始执行，参数有：", mainClass, isHeadless, setFlagsAgain, Arrays.asList(args), startupTimings);
     StartUpMeasurer.addTimings(startupTimings, "bootstrap");
     startupStart = StartUpMeasurer.startActivity("app initialization preparation");
 
@@ -115,19 +127,31 @@ public final class StartupUtil {
     CommandLineArgs.parse(args);
 
     LoadingState.setStrictMode();
-    LoadingState.errorHandler = (message, throwable) -> Logger.getInstance(LoadingState.class).error(message, throwable);
+    LoadingState.errorHandler = (message, throwable) -> {
+      Logger.getInstance(LoadingState.class).error(message, throwable);
+      StartUtils.log(true, "加载状态枚举的错误处理器，添加一行自定义的日志输出，接收的参数有", message, throwable, throwable.getStackTrace());
+    };
 
     Activity activity = StartUpMeasurer.startActivity("ForkJoin CommonPool configuration");
     IdeaForkJoinWorkerThreadFactory.setupForkJoinCommonPool(isHeadless);
 
+    // 返回一个公共的线程池
     ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
 
+    // 主类加载调度
     activity = activity.endAndStart("main class loading scheduling");
+    // 实例化CompletableFuture  并使用 forkjoinpool 的并行线程执行
+    // 声明的构造方法，会放到  线程池中开始执行。
     CompletableFuture<AppStarter> appStarterFuture = CompletableFuture.supplyAsync(() -> {
+      Thread.currentThread().setName("appStarterFuture");
       try {
+        // 主类加载活动日志声明
         Activity subActivity = StartUpMeasurer.startActivity("main class loading");
         Class<?> aClass = StartupUtil.class.getClassLoader().loadClass(mainClass);
+        StartUtils.log(true, "开始加载主类", mainClass, "加载后的类是：", aClass,
+                       "\n加载主类的线程是：", Thread.currentThread().getName(), Thread.currentThread() , "主类加载活动日志再此时声明", subActivity);
         subActivity.end();
+        // 使用反射，调用 无参构造方法， 返回一个对象。
         return (AppStarter)MethodHandles.lookup().findConstructor(aClass, MethodType.methodType(void.class)).invoke();
       }
       catch (RuntimeException e) {
@@ -137,11 +161,18 @@ public final class StartupUtil {
         throw new CompletionException(e);
       }
     }, forkJoinPool);
+    /**
+     *  所以， 主类的初始化，是在线程中进行的。
+     *  在这里这样声明之后， 当实际调用这个线程的时候，才开始初始话这个主类。
+     */
 
+    // 安排之后加载 eua文档
     CompletableFuture<@Nullable("if accepted") Object> euaDocumentFuture = isHeadless ? null : scheduleEuaDocumentLoading();
+
     if (args.length > 0 && (Main.CWM_HOST_COMMAND.equals(args[0]) || Main.CWM_HOST_NO_LOBBY_COMMAND.equals(args[0]))) {
       activity = activity.endAndStart("cwm host init");
       try {
+        // 通过反射，执行项目类的 这个方法。
         Class<?> projectorMainClass = StartupUtil.class.getClassLoader().loadClass(PROJECTOR_LAUNCHER_CLASS_NAME);
         MethodHandles.privateLookupIn(projectorMainClass, MethodHandles.lookup())
           .findStatic(projectorMainClass, "runProjectorServer", MethodType.methodType(boolean.class)).invoke();
@@ -156,25 +187,32 @@ public final class StartupUtil {
 
     activity = activity.endAndStart("graphics environment checking");
     if (!isHeadless && !checkGraphics()) {
+      // 没有图形
       System.exit(Main.NO_GRAPHICS);
     }
 
+    // 配置路径计算
     activity = activity.endAndStart("config path computing");
     Path configPath = canonicalPath(PathManager.getConfigPath());
     Path systemPath = canonicalPath(PathManager.getSystemPath());
 
+    // 系统目录锁定
     activity = activity.endAndStart("system dirs locking");
+    // 这需要在 UI 初始化之前发生 - 如果我们不打算显示 UI（以防另一个 IDE 实例已经在运行），
     // This needs to happen before UI initialization - if we're not going to show UI (in case another IDE instance is already running),
+    // 我们不应该初始化 AWT 工具包以避免不必要的焦点窃取和 macOS 上的空间切换。
     // we shouldn't initialize AWT toolkit in order to avoid unnecessary focus stealing and space switching on macOS.
     boolean configImportNeeded = lockSystemDirs(!isHeadless, configPath, systemPath, args);
 
+    // LaF 初始化调度
     activity = activity.endAndStart("LaF init scheduling");
+    // 忙线程
     Thread busyThread = Thread.currentThread();
-    // LookAndFeel type is not specified to avoid class loading
+    // LookAndFeel type is not specified to avoid class loading   未指定 LookAndFeel 类型以避免类加载
     CompletableFuture<Object/*LookAndFeel*/> initUiFuture = scheduleInitUi(busyThread, isHeadless);
 
-    // A splash instance must not be created before base LaF is created.
-    // It is important on Linux, where GTK LaF must be initialized (to properly setup scale factor).
+    // A splash instance must not be created before base LaF is created.   在创建基本 LaF 之前，不得创建启动实例。
+    // It is important on Linux, where GTK LaF must be initialized (to properly setup scale factor).  在 Linux 上很重要，必须初始化 GTK LaF（以正确设置比例因子）。
     // https://youtrack.jetbrains.com/issue/IDEA-286544
     CompletableFuture<Runnable> splashTaskFuture = isHeadless || Main.isLightEdit() ? null : initUiFuture.thenApplyAsync(__ -> {
       return prepareSplash(args);
@@ -184,6 +222,7 @@ public final class StartupUtil {
     configureJavaUtilLogging();
     activity = activity.endAndStart("eua and splash scheduling");
 
+    // 显示 Eua 如果需要
     CompletableFuture<Boolean> showEuaIfNeededFuture;
     if (isHeadless) {
       showEuaIfNeededFuture = initUiFuture.thenApply(__ -> true);
@@ -216,6 +255,7 @@ public final class StartupUtil {
     if (!configImportNeeded) {
       ZipFilePool.POOL = new ZipFilePoolImpl();
       PluginManagerCore.scheduleDescriptorLoading();
+      StartUtils.log(true, "加载和初始化插件");
     }
 
     if (!checkJdkVersion()) {
@@ -226,7 +266,7 @@ public final class StartupUtil {
       setupSystemLibraries();
       loadSystemLibraries(log);
 
-      // JNA and Swing are used; invoke only after both are loaded
+      // JNA and Swing are used; invoke only after both are loaded   使用 JNA 和 Swing；仅在两者都加载后调用
       if (!isHeadless && SystemInfoRt.isMac) {
         initUiFuture.thenRunAsync(() -> {
           Activity subActivity = StartUpMeasurer.startActivity("mac app init");
@@ -238,7 +278,7 @@ public final class StartupUtil {
       logEssentialInfoAboutIde(log, ApplicationInfoImpl.getShadowInstance(), args);
     });
 
-    // don't load EnvironmentUtil class in the main thread
+    // don't load EnvironmentUtil class in the main thread   不要在主线程中加载 EnvironmentUtil 类
     shellEnvLoadFuture = forkJoinPool.submit(() -> EnvironmentUtil.loadEnvironment(StartUpMeasurer.startActivity("environment loading")));
 
     Thread.currentThread().setUncaughtExceptionHandler((__, e) -> {
@@ -249,6 +289,7 @@ public final class StartupUtil {
       runPreAppClass(log, args);
     }
 
+    // 主类加载等待活动
     Activity mainClassLoadingWaitingActivity = StartUpMeasurer.startActivity("main class loading waiting");
     CompletableFuture<?> future = appStarterFuture
       .thenCompose(appStarter -> {
@@ -269,6 +310,7 @@ public final class StartupUtil {
     // prevent JVM from exiting - because in FJP pool "all worker threads are initialized with {@link Thread#isDaemon} set {@code true}"
     // `awaitQuiescence` allows us to reuse the main thread instead of creating another one
     do {
+      StartUtils.log("启动工作池中的所有线程！");
       forkJoinPool.awaitQuiescence(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
     }
     while (!future.isDone());
@@ -276,6 +318,12 @@ public final class StartupUtil {
     AWTAutoShutdown.getInstance().notifyThreadFree(busyThread);
   }
 
+  /**
+   * 准备飞溅
+   * 不在 EDT 中执行
+   * @param args
+   * @return
+   */
   // executed not in EDT
   private static @Nullable Runnable prepareSplash(String @NotNull [] args) {
     int showSplash = -1;
@@ -315,6 +363,10 @@ public final class StartupUtil {
     return e instanceof CompletionException && e.getCause() != null ? e.getCause() : e;
   }
 
+  /**
+   * 检查图形
+   * @return
+   */
   private static boolean checkGraphics() {
     if (GraphicsEnvironment.isHeadless()) {
       Main.showMessage(BootstrapBundle.message("bootstrap.error.title.startup.error"), BootstrapBundle.message("bootstrap.error.message.no.graphics.environment"), true);
@@ -359,6 +411,10 @@ public final class StartupUtil {
     return shellEnvLoadFuture;
   }
 
+  /**
+   * 安排 Eua 文档加载
+   * @return
+   */
   private static CompletableFuture<@Nullable("if accepted") Object> scheduleEuaDocumentLoading() {
     return CompletableFuture.supplyAsync(() -> {
       String vendorAsProperty = System.getProperty("idea.vendor.name", "");
@@ -379,13 +435,29 @@ public final class StartupUtil {
     }, ForkJoinPool.commonPool());
   }
 
+  /**
+   * app启动器
+   */
   public interface AppStarter {
+    /**
+     * 从 IDE 初始化线程调用
+     * @param args
+     * @param prepareUiFuture
+     * @return
+     */
     /* called from IDE init thread */
     @NotNull CompletableFuture<?> start(@NotNull List<String> args, @NotNull CompletableFuture<Object> prepareUiFuture);
 
+    /**
+     * 导入配置之前
+     */
     /* called from IDE init thread */
     default void beforeImportConfigs() {}
 
+    /**
+     * 导入完成
+     * @param newConfigDir
+     */
     /* called from IDE init thread */
     default void importFinished(@NotNull Path newConfigDir) {}
   }
@@ -407,11 +479,21 @@ public final class StartupUtil {
     }
   }
 
+  /**
+   * 导入配置
+   * @param args
+   * @param log
+   * @param appStarter
+   * @param agreementShown
+   * @param initUiFuture
+   */
   private static void importConfig(List<String> args,
                                    Logger log,
                                    AppStarter appStarter,
                                    CompletableFuture<Boolean> agreementShown,
                                    CompletableFuture<Object> initUiFuture) {
+    StartUtils.log(true, "开始导入配置", Arrays.asList(args), log, appStarter, agreementShown, initUiFuture);
+    //屏幕阅读器检查
     Activity activity = StartUpMeasurer.startActivity("screen reader checking");
     try {
       EventQueue.invokeAndWait(AccessibilityUtils::enableScreenReaderSupportIfNecessary);
@@ -454,9 +536,18 @@ public final class StartupUtil {
     }
   }
 
+  /**
+   * 调度初始化界面
+   * @param busyThread
+   * @param isHeadless
+   * @return
+   */
   private static CompletableFuture<Object> scheduleInitUi(Thread busyThread, boolean isHeadless) {
+    // 调用 `sun.util.logging.PlatformLoggergetLogger` - 这需要大量时间（最多 500 毫秒）
     // calls `sun.util.logging.PlatformLogger#getLogger` - it takes enormous time (up to 500 ms)
+    // 在 `setupLogger` 之前只能执行非日志任务
     // only non-logging tasks can be executed before `setupLogger`
+    // LaF 初始化（时间表）
     Activity activityQueue = StartUpMeasurer.startActivity("LaF initialization (schedule)");
     CompletableFuture<Object> initUiFuture = CompletableFuture.runAsync(() -> {
         checkHiDPISettings();
@@ -475,6 +566,7 @@ public final class StartupUtil {
         activityQueue.end();
 
         Activity activity = null;
+        // 我们不需要 Idea LaF 来显示启动画面，但我们确实需要一些基本的 LaF 来计算系统字体数据（见下文）
         // we don't need Idea LaF to show splash, but we do need some base LaF to compute system font data (see below for what)
         if (!isHeadless) {
           // IdeaLaF uses AllIcons - icon manager must be activated
@@ -503,6 +595,7 @@ public final class StartupUtil {
         }
 
         activity = activity.endAndStart("base LaF initialization");
+        // LaF 在初始化之前是无用的（`getDefaults` “应该只在调用 `initialize` 之后才被调用。”）
         // LaF is useless until initialized (`getDefaults` "should only be invoked ... after `initialize` has been invoked.")
         baseLaF.initialize();
 
@@ -526,6 +619,9 @@ public final class StartupUtil {
 
         activity = activity.endAndStart("awt thread busy notification");
         /*
+        使 EDT 在主线程处于活动状态时始终保持不变。
+        否则，EDT 可能会被 {@link AWTAutoShutdown} 终止，这将破坏 `ReadMostlyRWLock` 实例。
+        {@link AWTAutoShutdownnotifyThreadBusy(Thread)} 会将主线程放入线程映射中，因此将有效地禁用此应用程序的自动关闭行为。
           Make EDT to always persist while the main thread is alive. Otherwise, it's possible to have EDT being
           terminated by {@link AWTAutoShutdown}, which will break a `ReadMostlyRWLock` instance.
           {@link AWTAutoShutdown#notifyThreadBusy(Thread)} will put the main thread into the thread map,
@@ -538,18 +634,22 @@ public final class StartupUtil {
 
         if (!isHeadless) {
           ForkJoinPool.commonPool().execute(() -> {
+            // 作为一项 FJ 任务 - 一项一项执行，为更重要的任务腾出空间
             // as one FJ task - execute one by one to make room for more important tasks
             updateFrameClassAndWindowIcon();
             loadSystemFontsAndDnDCursors();
           });
         }
-        return baseLaF;
+        return baseLaF;                     // 不要在这里使用方法引用（`EventQueue` 类必须按需加载）
       }, it -> EventQueue.invokeLater(it) /* do not use a method-reference here (`EventQueue` class must be loaded on demand) */);
 
+    // 正在使用单独的写入线程
     if (isUsingSeparateWriteThread()) {
       return CompletableFuture.allOf(initUiFuture, CompletableFuture.runAsync(() -> {
+        // 写 Intent Lock UI 类转换器加载
         Activity activity = StartUpMeasurer.startActivity("Write Intent Lock UI class transformer loading");
         try {
+          // 编写意图锁检测器
           WriteIntentLockInstrumenter.instrument();
         }
         finally {
@@ -562,7 +662,8 @@ public final class StartupUtil {
     }
   }
 
-  /*
+  /**
+   * 格挡攻击包装
    * The method should be called before `Toolkit#initAssistiveTechnologies`, which is called from `Toolkit#getDefaultToolkit`.
    */
   private static void blockATKWrapper() {
@@ -581,6 +682,9 @@ public final class StartupUtil {
     activity.end();
   }
 
+  /**
+   * 加载系统字体和 Dn D 光标
+   */
   private static void loadSystemFontsAndDnDCursors() {
     Activity activity = StartUpMeasurer.startActivity("system fonts loading");
     // this forces loading of all system fonts; the following statement alone might not do it (see JBR-1825)
@@ -621,6 +725,9 @@ public final class StartupUtil {
     return euaFuture.whenComplete((__, ___) -> activity.end());
   }
 
+  /**
+   * 更新框架类和窗口图标
+   */
   private static void updateFrameClassAndWindowIcon() {
     Activity activity = StartUpMeasurer.startActivity("frame class updating");
     AppUIUtil.updateFrameClass();
@@ -634,13 +741,18 @@ public final class StartupUtil {
     activity.end();
   }
 
+  /**
+   * 配置 Java 实用程序日志记录
+   */
   private static void configureJavaUtilLogging() {
     Activity activity = StartUpMeasurer.startActivity("console logger configuration");
     java.util.logging.Logger rootLogger = java.util.logging.Logger.getLogger("");
     if (rootLogger.getHandlers().length == 0) {
       rootLogger.setLevel(Level.WARNING);
       ConsoleHandler consoleHandler = new ConsoleHandler();
-      consoleHandler.setLevel(Level.WARNING);
+      //consoleHandler.setLevel(Level.WARNING);
+      consoleHandler.setLevel(Level.ALL);
+      StartUtils.log(true, "设置打印日志登记");
       rootLogger.addHandler(consoleHandler);
     }
     activity.end();
@@ -668,6 +780,9 @@ public final class StartupUtil {
     checkHiDPISettings();
   }
 
+  /**
+   * 检查 Hi DPI 设置
+   */
   private static void checkHiDPISettings() {
     if (!Boolean.parseBoolean(System.getProperty("hidpi", "true"))) {
       // suppress JRE-HiDPI mode
@@ -766,7 +881,11 @@ public final class StartupUtil {
     }
   }
 
-  /** Returns {@code true} when {@code checkConfig} is requested and config import is needed. */
+  /**
+   * 锁定系统目录
+   * 当请求 {@code checkConfig} 并且需要配置导入时返回 {@code true}。
+   * Returns {@code true} when {@code checkConfig} is requested and config import is needed.
+   */
   private static boolean lockSystemDirs(boolean checkConfig, Path configPath, Path systemPath, String[] args) throws Exception {
     if (socketLock != null) {
       throw new AssertionError("Already initialized");
@@ -831,6 +950,9 @@ public final class StartupUtil {
     return log;
   }
 
+  /**
+   * 设置系统库
+   */
   @SuppressWarnings("SpellCheckingInspection")
   private static void setupSystemLibraries() {
     Activity subActivity = StartUpMeasurer.startActivity("system libs setup");
@@ -867,6 +989,12 @@ public final class StartupUtil {
     activity.end();
   }
 
+  /**
+   * 记录关于 Ide 的基本信息
+   * @param log
+   * @param appInfo
+   * @param args
+   */
   private static void logEssentialInfoAboutIde(Logger log, ApplicationInfo appInfo, String[] args) {
     Activity activity = StartUpMeasurer.startActivity("essential IDE info logging");
 
@@ -945,10 +1073,18 @@ public final class StartupUtil {
     PluginManagerCore.scheduleDescriptorLoading();
   }
 
+  /**
+   * 补丁系统
+   * <br/>
+   * 必须从 EDT 调用
+   * @param isHeadless
+   */
   // must be called from EDT
   private static void patchSystem(boolean isHeadless) {
     Activity activity = StartUpMeasurer.startActivity("event queue replacing");
+    // 替换系统事件队列
     // replace system event queue
+    //  不检查   方法调用的结果被忽略
     //noinspection ResultOfMethodCallIgnored
     IdeEventQueue.getInstance();
 
@@ -967,8 +1103,10 @@ public final class StartupUtil {
       }
     }
 
+    // 不要因异常而使 AWT 崩溃
     // do not crash AWT on exceptions
     AWTExceptionHandler.register();
+    // 注册异常处理程序
 
     activity.end();
   }
