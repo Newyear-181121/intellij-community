@@ -71,6 +71,9 @@ public final class EditorPainter implements TextDrawingCallback {
     new Session(myView, g).paint();
   }
 
+  /**
+   * 重新绘制符号
+   */
   void repaintCarets() {
     EditorImpl editor = myView.getEditor();
     EditorImpl.CaretRectangle[] locations = editor.getCaretLocations(false);
@@ -168,7 +171,11 @@ public final class EditorPainter implements TextDrawingCallback {
       myScaleContext = ScaleContext.create(myGraphics);
     }
 
+    /**
+     * 绘制
+     */
     private void paint() {
+      // 如果编辑器是不透明的
       if (myEditor.getContentComponent().isOpaque()) {
         myGraphics.setColor(myBackgroundColor);
         myGraphics.fillRect(myClip.x, myClip.y, myClip.width, myClip.height);

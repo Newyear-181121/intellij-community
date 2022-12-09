@@ -41,6 +41,9 @@ import java.awt.geom.Point2D;
 import java.text.Bidi;
 
 /**
+ * 负责图形编辑器内容组件的外观， 管理编辑器的尺寸和坐标转换（偏移， 逻辑位置， 视觉位置， x,y坐标位置）， 也包含几个字体数量的缓存（行高， 间距，设置）
+ * <p>
+ *
  * A facade for components responsible for drawing editor contents, managing editor size 
  * and coordinate conversions (offset <-> logical position <-> visual position <-> x,y).
  * 
@@ -48,14 +51,32 @@ import java.text.Bidi;
  */
 public class EditorView implements TextDrawingCallback, Disposable, Dumpable, HierarchyListener, VisibleAreaListener {
   private static final Logger LOG = Logger.getInstance(EditorView.class);
+  /**
+   * 折叠_范围_文本布局
+   */
   private static final Key<LineLayout> FOLD_REGION_TEXT_LAYOUT = Key.create("text.layout");
 
   private final EditorImpl myEditor;
   private final DocumentEx myDocument;
+  /**
+   * 编辑器绘制器
+   */
   private final EditorPainter myPainter;
+  /**
+   * 编辑器协调制图人
+   */
   private final EditorCoordinateMapper myMapper;
+  /**
+   * 编辑器尺寸管理器
+   */
   private final EditorSizeManager mySizeManager;
+  /**
+   * 文本布局缓存
+   */
   private final TextLayoutCache myTextLayoutCache;
+  /**
+   * 逻辑位置缓存
+   */
   private final LogicalPositionCache myLogicalPositionCache;
   private final CharWidthCache myCharWidthCache;
   private final TabFragment myTabFragment;
@@ -280,6 +301,13 @@ public class EditorView implements TextDrawingCallback, Disposable, Dumpable, Hi
     return myPrefixAttributes;
   }
 
+  /**
+   * 绘制
+   *
+   * 既然这里没有描述要绘制的内容，那么就在编辑器的绘制器
+   *
+   * @param g 绘笔
+   */
   public void paint(Graphics2D g) {
     assertIsDispatchThread();
     myEditor.getSoftWrapModel().prepareToMapping();
@@ -287,11 +315,18 @@ public class EditorView implements TextDrawingCallback, Disposable, Dumpable, Hi
     myPainter.paint(g);
   }
 
+  /**
+   * 重新绘制符号
+   */
   public void repaintCarets() {
     assertIsDispatchThread();
     myPainter.repaintCarets();
   }
 
+  /**
+   *
+   * @return 首选大小
+   */
   @NotNull
   public Dimension getPreferredSize() {
     assertIsDispatchThread();
@@ -301,6 +336,7 @@ public class EditorView implements TextDrawingCallback, Disposable, Dumpable, Hi
   }
 
   /**
+   * 返回范围内线条的首选像素宽度
    * Returns preferred pixel width of the lines in range.
    * <p>
    * This method is currently used only with "idea.true.smooth.scrolling" experimental option.
@@ -707,6 +743,9 @@ public class EditorView implements TextDrawingCallback, Disposable, Dumpable, Hi
     return myBidiFlags;
   }
 
+  /**
+   * 断言是调度线程
+   */
   private static void assertIsDispatchThread() {
     ApplicationManager.getApplication().assertIsDispatchThread();
   }
