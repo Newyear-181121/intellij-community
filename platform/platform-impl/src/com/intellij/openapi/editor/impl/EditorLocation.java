@@ -8,6 +8,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
+/**
+ * 鼠标位置
+ */
 class EditorLocation {
   private final Editor myEditor;
   private final Point myPoint;

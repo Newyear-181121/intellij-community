@@ -3371,12 +3371,27 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     myCurrentDragIsSubstantial = true;
   }
 
+  /**
+   * 重绘光标命令， 一个独立的线程用来绘制光标
+   */
   private static class RepaintCursorCommand implements Runnable {
+    /**
+     * 光标休眠时间
+     */
     private long mySleepTime = 500;
+    /**
+     * 光标是否闪烁
+     */
     private boolean myIsBlinkCaret = true;
     @Nullable private EditorImpl myEditor;
+    /**
+     * 声明了一个线程
+     */
     private ScheduledFuture<?> mySchedulerHandle;
 
+    /**
+     * 线程执行内容， 估计是开始绘制光标
+     */
     public void start() {
       if (mySchedulerHandle != null) {
         mySchedulerHandle.cancel(false);
@@ -3535,10 +3550,22 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
    * 插入符号光标类
    */
   final class CaretCursor {
+    /**
+     * 光标位置
+     */
     private CaretRectangle[] myLocations;
+    /**
+     * 是否可用
+     */
     private boolean myEnabled;
-
+    /**
+     * 是否显示
+     */
     private boolean myIsShown;
+    /**
+     * 开始时间
+     * 每次更改位置的时候，都会更新时间，用来控制光标的闪烁
+     */
     private long myStartTime;
 
     private CaretCursor() {
@@ -3572,17 +3599,27 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
       }
     }
 
+    /**
+     * 钝化
+     */
     private void passivate() {
       synchronized (ourCaretBlinkingCommand) {
         myIsShown = false;
       }
     }
 
+    /**
+     * 设置位置
+     * @param locations
+     */
     private void setPositions(CaretRectangle @NotNull [] locations) {
       myStartTime = System.currentTimeMillis();
       myLocations = locations;
     }
 
+    /**
+     * 重新绘制
+     */
     private void repaint() {
       myView.repaintCarets();
     }
@@ -3598,6 +3635,9 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     }
   }
 
+  /**
+   * 滚动计时器
+   */
   private class ScrollingTimer {
     private Timer myTimer;
     private static final int CYCLE_SIZE = 20;
@@ -4976,6 +5016,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     myUseEditorAntialiasing = value;
   }
 
+  /**
+   * 创建编辑器鼠标监听事件
+   * @param e
+   * @return
+   */
   @NotNull
   private EditorMouseEvent createEditorMouseEvent(@NotNull MouseEvent e) {
     Point point = e.getPoint();
