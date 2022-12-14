@@ -5065,6 +5065,9 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     }
   }
 
+  /**
+   * 我的配色方案委托
+   */
   private final class MyColorSchemeDelegate extends DelegateColorScheme {
     private final FontPreferencesImpl myFontPreferences = new FontPreferencesImpl();
     private final FontPreferencesImpl myConsoleFontPreferences = new FontPreferencesImpl();
