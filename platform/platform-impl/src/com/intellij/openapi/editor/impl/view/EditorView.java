@@ -337,6 +337,7 @@ public class EditorView implements TextDrawingCallback, Disposable, Dumpable, Hi
 
   /**
    * 返回范围内线条的首选像素宽度
+   * <p>
    * Returns preferred pixel width of the lines in range.
    * <p>
    * This method is currently used only with "idea.true.smooth.scrolling" experimental option.

@@ -48,6 +48,8 @@ import java.util.*;
 import java.util.function.Consumer;
 
 /**
+ * 呈现编辑器内容。
+ * <br>
  * Renders editor contents.
  */
 public final class EditorPainter implements TextDrawingCallback {
@@ -86,6 +88,7 @@ public final class EditorPainter implements TextDrawingCallback {
       float width = location.myWidth + CARET_DIRECTION_MARK_SIZE;
       int xStart = (int)Math.floor(x - width);
       int xEnd = (int)Math.ceil(x + width);
+      // 编辑器组件 来绘制内容
       editor.getContentComponent().repaint(xStart, y, xEnd - xStart, nominalLineHeight);
     }
   }

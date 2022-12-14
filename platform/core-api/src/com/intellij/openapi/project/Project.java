@@ -23,7 +23,7 @@ import org.jetbrains.annotations.*;
  */
 public interface Project extends ComponentManager, AreaInstance {
   /**
-   * 目录商店文件夹
+   * 存储目录文件夹
    */
   String DIRECTORY_STORE_FOLDER = ".idea";
 
@@ -86,6 +86,8 @@ public interface Project extends ComponentManager, AreaInstance {
   String getProjectFilePath();
 
   /**
+   * 返回可呈现的项目路径：
+   * <br/>
    * Returns presentable project path:
    * {@linkplain #getProjectFilePath()} for file-based projects, {@linkplain #getBasePath()} for directory-based ones.<br/>
    * Returns {@code null} for default project.

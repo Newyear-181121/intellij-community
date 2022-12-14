@@ -2718,6 +2718,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
            + (myView == null ? "" : "\nview: " + myView.dumpState());
   }
 
+  /**
+   * 获取插入符号位置
+   * @param onlyIfShown
+   * @return
+   */
   public CaretRectangle @Nullable [] getCaretLocations(boolean onlyIfShown) {
     return myCaretCursor.getCaretLocations(onlyIfShown);
   }
@@ -3526,6 +3531,9 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     }
   }
 
+  /**
+   * 插入符号光标类
+   */
   final class CaretCursor {
     private CaretRectangle[] myLocations;
     private boolean myEnabled;
@@ -3579,6 +3587,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
       myView.repaintCarets();
     }
 
+    /**
+     * 获取插入符号位置
+     * @param onlyIfShown
+     * @return
+     */
     CaretRectangle @Nullable [] getCaretLocations(boolean onlyIfShown) {
       if (onlyIfShown && (!isEnabled() || !myIsShown || isRendererMode() || !IJSwingUtilities.hasFocus(getContentComponent()))) return null;
       return myLocations;
