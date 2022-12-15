@@ -5,6 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
+ * 折叠区域
+ * <br/>
+ * 表示编辑器中可以折叠的文本区域。
+ * <br/>
  * Represents a region of text in the editor which can be folded.
  *
  * @see FoldingModel#addFoldRegion(int, int, String)
