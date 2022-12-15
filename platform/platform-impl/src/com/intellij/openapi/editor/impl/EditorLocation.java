@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 
 /**
- * 鼠标位置
+ * 编辑器的位置信息
  * <br/>
  * 这里的位置信息都是通过编辑器获取的， 也可以说是对编辑器内的位置信息包装一层。
  */

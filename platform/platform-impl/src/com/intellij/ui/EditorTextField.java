@@ -68,6 +68,10 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * 编辑器文本域
+ * <br/>
+ * 使用 editor.putUserData（IncrementalFindAction.SEARCH_DISABLED， Boolean.TRUE）;以禁用搜索/替换组件。
+ * <br/>
  * Use {@code editor.putUserData(IncrementalFindAction.SEARCH_DISABLED, Boolean.TRUE);} to disable search/replace component.
  */
 public class EditorTextField extends NonOpaquePanel implements EditorTextComponent, DocumentListener, DataProvider, TextAccessor,
@@ -82,6 +86,9 @@ public class EditorTextField extends NonOpaquePanel implements EditorTextCompone
   private EditorEx myEditor;
   private final Set<Editor> myEditorsToBeReleased = new HashSet<>();
   private Component myNextFocusable;
+  /**
+   * 是否选择了全部文本
+   */
   private boolean myWholeTextSelected;
   private final List<DocumentListener> myDocumentListeners = ContainerUtil.createLockFreeCopyOnWriteList();
   private final List<FocusListener> myFocusListeners = ContainerUtil.createLockFreeCopyOnWriteList();

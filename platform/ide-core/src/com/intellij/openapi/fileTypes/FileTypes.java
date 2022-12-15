@@ -8,5 +8,8 @@ public class FileTypes {
 
   public static final FileType ARCHIVE = ArchiveFileType.INSTANCE;
   public static final FileType UNKNOWN = UnknownFileType.INSTANCE;
+  /**
+   * 纯文本
+   */
   public static final LanguageFileType PLAIN_TEXT = (LanguageFileType)FileTypeManager.getInstance().getStdFileType("PLAIN_TEXT");
 }
