@@ -80,6 +80,7 @@ public class BoundIconRenderer extends GutterIconRenderer {
             return;
           }
           Project project = myElement.getProject();
+          // 通过这里的监听触发 打开新的编辑器。
           FileEditor[] editors = FileEditorManager.getInstance(project).openFile(virtualFile, true);
           if (myElement instanceof PsiField) {
             for (FileEditor editor: editors) {

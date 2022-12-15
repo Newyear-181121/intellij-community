@@ -36,6 +36,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * 编辑器片段渲染器
+ */
 final class EditorFragmentRenderer {
   static final int PREVIEW_LINES = Math.max(2, Math.min(25, Integer.getInteger("preview.lines", 5)));// Actually preview has myPreviewLines * 2 + 1 lines (above + below + current one)
   static final int EDITOR_FRAGMENT_POPUP_BORDER = 1;
