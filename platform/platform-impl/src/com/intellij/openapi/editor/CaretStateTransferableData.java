@@ -24,6 +24,9 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.util.Arrays;
 
+/**
+ * 插入符状态可传输数据
+ */
 public class CaretStateTransferableData implements TextBlockTransferableData {
   private static final Logger LOG = Logger.getInstance(CaretStateTransferableData.class);
 

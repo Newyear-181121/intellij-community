@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 import java.awt.*;
 
 /**
+ * 行扩展信息
  * @author Konstantin Bulenkov
  */
 public class LineExtensionInfo {

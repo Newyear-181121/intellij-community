@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.function.IntFunction;
 
 /**
+ * 编辑器行绘制器
+ * <br/>
  * Register implementation of this extension point to draw additional text fragments after end of a line in a file editor. If you need to do
  * this in a particular {@link Editor} instance use {@link com.intellij.openapi.editor.ex.EditorEx#registerLineExtensionPainter(IntFunction)} instead.
  *

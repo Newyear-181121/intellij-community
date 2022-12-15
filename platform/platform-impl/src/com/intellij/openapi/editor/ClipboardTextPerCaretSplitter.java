@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * 剪贴板文本光标分离器
+ */
 public class ClipboardTextPerCaretSplitter {
   @NotNull
   public List<String> split(@NotNull String input, @Nullable CaretStateTransferableData caretData, int caretCount) {
