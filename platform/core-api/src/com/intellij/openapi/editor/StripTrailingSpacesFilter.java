@@ -16,6 +16,7 @@
 package com.intellij.openapi.editor;
 
 /**
+ * 分割尾部空格过滤器
  * Allows to suppress stripping spaces from some lines or from entire document when the document is being saved and
  * "Settings|Editor|General|Strip trailing spaces on save" option is not "None".
  * 

@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 
 /**
+ * 范围标记
+ * <br/>
  * Represents a range of text in a {@link Document} which is automatically adjusted
  * as the document text is modified. Adding or deleting text before the marker
  * shifts the marker forward or backward; adding or deleting text within the marker

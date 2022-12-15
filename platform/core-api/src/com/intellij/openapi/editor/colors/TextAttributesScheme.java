@@ -17,6 +17,9 @@ package com.intellij.openapi.editor.colors;
 
 import com.intellij.openapi.editor.markup.TextAttributes;
 
+/**
+ * 文本属性方案
+ */
 public interface TextAttributesScheme {
   TextAttributes getAttributes(TextAttributesKey key);
 }

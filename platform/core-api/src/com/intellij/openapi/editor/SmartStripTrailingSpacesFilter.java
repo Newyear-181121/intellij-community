@@ -16,6 +16,8 @@
 package com.intellij.openapi.editor;
 
 /**
+ * 智能分割尾部空格过滤器
+ * <br/>
  * Allows to control how many whitespace characters must be left on any given line if not all of them can be removed.
  */
 public abstract class SmartStripTrailingSpacesFilter implements StripTrailingSpacesFilter {

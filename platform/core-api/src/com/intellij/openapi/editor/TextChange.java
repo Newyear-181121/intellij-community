@@ -20,6 +20,7 @@ import com.intellij.util.text.CharSequenceBackedByArray;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * 文本更改
  * Provides generic contract for object encapsulating information about single unit of text change.
  * <p/>
  * Implementations of this interface are not obliged to be thread-safe.

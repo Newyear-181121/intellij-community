@@ -17,6 +17,9 @@ package com.intellij.openapi.editor.actionSystem;
 
 import com.intellij.openapi.editor.ReadOnlyFragmentModificationException;
 
+/**
+ * 只读片段修改处理器
+ */
 public interface ReadonlyFragmentModificationHandler {
   void handle(ReadOnlyFragmentModificationException e);
 }

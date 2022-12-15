@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Document;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * 批量感知 文档监听
  * Convenience interface for {@link DocumentListener}-s which only process notifications on document changes performed not in
  * {@link Document#setInBulkUpdate(boolean) bulk mode}.
  * <br>

@@ -4,6 +4,9 @@ package com.intellij.openapi.editor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * 只读修改异常
+ */
 public final class ReadOnlyModificationException extends RuntimeException {
   private final Document myDocument;
 

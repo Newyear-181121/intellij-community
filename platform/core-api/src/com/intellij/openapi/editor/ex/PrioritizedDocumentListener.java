@@ -6,6 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
 
+/**
+ * 文档优先级区分监听
+ */
 @FunctionalInterface
 public interface PrioritizedDocumentListener extends DocumentListener {
   /**

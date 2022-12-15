@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NonNls;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * 可折叠分组
  * {@link com.intellij.openapi.editor.FoldRegion}s with same FoldingGroup instances expand and collapse together.
  *
  * @author peter
