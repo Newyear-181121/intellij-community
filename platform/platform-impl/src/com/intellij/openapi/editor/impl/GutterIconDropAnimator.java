@@ -14,6 +14,9 @@ import java.awt.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * 装订线图标放置动画器
+ */
 class GutterIconDropAnimator extends AbstractPainter {
   private final Point myExplosionLocation;
   private final Image myImage;

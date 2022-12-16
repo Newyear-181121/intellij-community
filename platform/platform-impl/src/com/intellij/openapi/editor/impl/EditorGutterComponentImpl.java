@@ -108,6 +108,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * 编辑器排水沟组件实现
+ *
  * Gutter content (left to right):
  * <ul>
  *   <li>GAP_BETWEEN_AREAS</li>
@@ -436,6 +438,10 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     debugGutterAreas(g);
   }
 
+  /**
+   * debug装订区域
+   * @param g
+   */
   private void debugGutterAreas(Graphics2D g) {
     if (!debug()) return;
     Point p = MouseInfo.getPointerInfo().getLocation();
@@ -623,6 +629,12 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     }
   }
 
+  /**
+   * 获取文本的字体
+   * @param text
+   * @param style
+   * @return
+   */
   private Font getFontForText(String text, EditorFontType style) {
     Font font = ExperimentalUI.isNewUI() ? JBFont.regular().deriveFont((float)myEditor.getFontSize())
                                          : myEditor.getColorsScheme().getFont(style);
