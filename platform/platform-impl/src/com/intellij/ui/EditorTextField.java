@@ -117,6 +117,10 @@ public class EditorTextField extends NonOpaquePanel implements EditorTextCompone
     this("");
   }
 
+  /**
+   * 也许可以通过这个构造方法直接构造一个可视的文本域
+   * @param text
+   */
   public EditorTextField(@NotNull String text) {
     this(text, null, FileTypes.PLAIN_TEXT);
   }
@@ -329,6 +333,12 @@ public class EditorTextField extends NonOpaquePanel implements EditorTextCompone
     return StringUtil.convertLineSeparators(text);
   }
 
+  /**
+   * 发现行分离器，
+   * @param document
+   * @param text
+   * @return
+   */
   @Nullable
   private static LineSeparator detectLineSeparators(@Nullable Document document, @Nullable String text) {
     if (text == null) return null;
@@ -691,6 +701,10 @@ public class EditorTextField extends NonOpaquePanel implements EditorTextCompone
     }
   }
 
+  /**
+   * 设置边界
+   * @param editor
+   */
   protected void setupBorder(@NotNull EditorEx editor) {
     if (StartupUiUtil.isUnderDarcula() || UIUtil.isUnderIntelliJLaF()) {
       LafManager lafManager = LafManager.getInstance();

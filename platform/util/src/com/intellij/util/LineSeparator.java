@@ -10,6 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * 行标识符
+ * <br/>
+ * 标识行分隔符：Unix （\n）、Windows （\r\n） 或（可能不再实际）Classic Mac （\r）。
+ * 目的是在需要行分隔符而不仅仅是字符串的任何地方使用此类
+ * <br/>
  * Identifies a line separator:
  * either Unix ({@code \n}), Windows ({@code \r\n}) or (possible not actual anymore) Classic Mac ({@code \r}).
  * <p>The intention is to use this class everywhere, where a line separator is needed instead of just Strings.</p>
