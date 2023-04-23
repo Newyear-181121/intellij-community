@@ -35,6 +35,10 @@ import java.util.Objects;
 
 import static com.intellij.testFramework.CoroutineKt.executeSomeCoroutineTasksAndDispatchAllInvocationEvents;
 
+
+/**
+ * 文件编辑器管理器测试类
+ */
 public class FileEditorManagerTest extends FileEditorManagerTestCase {
   public void testTabOrder() {
     openFiles(STRING.replace("pinned=\"true\"", "pinned=\"false\""));

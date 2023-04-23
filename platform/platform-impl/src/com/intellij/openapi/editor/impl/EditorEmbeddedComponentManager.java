@@ -23,6 +23,9 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
+/**
+ * 编辑器植入组件管理器
+ */
 public final class EditorEmbeddedComponentManager {
   private static final Key<ComponentInlays> COMPONENT_INLAYS_KEY = Key.create("editor.embedded.component.inlays");
   private static final int RESIZE_POINT_DELTA = JBUI.scale(5);

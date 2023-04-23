@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
+ * 分割尾部过滤器工厂
  * Allows adding restrictions on how trailing spaces will be handled in a document.
  */
 public abstract class StripTrailingSpacesFilterFactory {

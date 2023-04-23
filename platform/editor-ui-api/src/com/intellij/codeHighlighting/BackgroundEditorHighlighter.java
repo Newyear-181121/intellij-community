@@ -3,6 +3,13 @@ package com.intellij.codeHighlighting;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 背景编辑器高亮
+ */
 public interface BackgroundEditorHighlighter {
+  /**
+   * 为编辑器创建通行证
+   * @return
+   */
   HighlightingPass @NotNull [] createPassesForEditor();
 }

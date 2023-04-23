@@ -35,6 +35,9 @@ import javax.swing.event.DocumentEvent;
 import java.awt.*;
 import java.util.Collections;
 
+/**
+ * 编辑合同意向
+ */
 public final class EditContractIntention extends BaseIntentionAction implements LowPriorityAction {
   @Override
   public @NotNull String getFamilyName() {

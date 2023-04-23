@@ -97,6 +97,11 @@ public final class EnvironmentUtil {
     }
   }
 
+  /**
+   * 加载环境
+   * @param activity
+   * @return
+   */
   @ApiStatus.Internal
   public static @Nullable Boolean loadEnvironment(@NotNull Job parentJob) {
     if (!shouldLoadShellEnv()) {

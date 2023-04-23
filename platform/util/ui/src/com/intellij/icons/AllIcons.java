@@ -9,6 +9,7 @@ import javax.swing.*;
 import org.jetbrains.annotations.ApiStatus.ScheduledForRemoval;
 
 /**
+ * 图标声明类
  * NOTE THIS FILE IS AUTO-GENERATED
  * DO NOT EDIT IT BY HAND, run "Generate icon classes" configuration instead
  */

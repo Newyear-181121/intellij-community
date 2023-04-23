@@ -9,16 +9,23 @@ import kotlinx.coroutines.CoroutineScope;
 import org.jetbrains.annotations.*;
 
 /**
+ * 表示 IntelliJ 项目的对象。
  * An object representing an IntelliJ project.
  *
+ * 要获取其所有模块，请使用
  * <p>To get all of its modules, use {@code ModuleManager.getInstance(project).getModules()}.
  *
+ * 要遍历所有项目源文件和目录，
  * <p>To iterate over all project source files and directories,
  * use {@code ProjectFileIndex.getInstance(project).iterateContent(iterator)}.
  *
+ * 获取所有打开项目的列表
  * <p>To get the list of all open projects, use {@code ProjectManager.getInstance().getOpenProjects()}.
  */
 public interface Project extends ComponentManager, AreaInstance {
+  /**
+   * 存储目录文件夹
+   */
   String DIRECTORY_STORE_FOLDER = ".idea";
 
   /**
@@ -80,6 +87,8 @@ public interface Project extends ComponentManager, AreaInstance {
   String getProjectFilePath();
 
   /**
+   * 返回可呈现的项目路径：
+   * <br/>
    * Returns presentable project path:
    * {@linkplain #getProjectFilePath()} for file-based projects, {@linkplain #getBasePath()} for directory-based ones.<br/>
    * Returns {@code null} for default project.

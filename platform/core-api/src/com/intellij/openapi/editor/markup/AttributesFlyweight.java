@@ -20,6 +20,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * 次级重量属性
+ */
 public final class AttributesFlyweight {
   private static final ConcurrentMap<FlyweightKey, AttributesFlyweight> entries = new ConcurrentHashMap<>();
   private static final ThreadLocal<FlyweightKey> ourKey = new ThreadLocal<>();

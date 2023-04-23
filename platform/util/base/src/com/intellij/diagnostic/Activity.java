@@ -4,6 +4,9 @@ package com.intellij.diagnostic;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * 活动记录器
+ */
 public interface Activity {
   void end();
 

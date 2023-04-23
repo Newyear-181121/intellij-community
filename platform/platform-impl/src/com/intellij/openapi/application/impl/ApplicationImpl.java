@@ -102,6 +102,9 @@ public class ApplicationImpl extends ClientAwareComponentManager implements Appl
   private boolean mySaveAllowed;
   private volatile boolean myExitInProgress;
 
+  /**
+   * 我最后的一次性用品
+   */
   private final @Nullable Disposable myLastDisposable;  // the last to be disposed
 
   // defer reading isUnitTest flag until it's initialized
@@ -143,6 +146,8 @@ public class ApplicationImpl extends ClientAwareComponentManager implements Appl
     super(null, true);
 
     myLock = lockHolder.getLock$intellij_platform_ide_impl();
+
+    StartUtils.log(true, "声明 ApplicationImpl, 参数是：", isInternal, isHeadless, isCommandLine, edtThread);
 
     registerFakeServices(this);
 

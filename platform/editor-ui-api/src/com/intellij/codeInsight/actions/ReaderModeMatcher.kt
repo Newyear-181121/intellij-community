@@ -7,10 +7,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 
 /**
+ * 阅读器模式匹配器
+ * 使用它来覆盖文件 <--> 阅读器模式匹配
  * Use it to override file <--> reader mode matching
  */
 interface ReaderModeMatcher {
   /**
+   * 匹配
+   * 它在阅读器模式下触发以检查文件是否与指定的模式匹配
    * It's triggered on Reader Mode to check if file matches mode specified.
    *
    * @return null if unable to decide

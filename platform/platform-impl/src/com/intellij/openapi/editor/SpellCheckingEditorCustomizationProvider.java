@@ -9,6 +9,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.Set;
 
+/**
+ * 拼写检查编辑器 定制化提供者
+ */
 public class SpellCheckingEditorCustomizationProvider {
   @NotNull
   public static SpellCheckingEditorCustomizationProvider getInstance() {

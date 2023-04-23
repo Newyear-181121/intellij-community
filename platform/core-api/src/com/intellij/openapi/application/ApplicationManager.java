@@ -2,6 +2,7 @@
 package com.intellij.openapi.application;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.diagnostic.DefaultLogger;
 import com.intellij.openapi.fileTypes.FileTypeRegistry;
 import com.intellij.openapi.util.Disposer;
 import org.jetbrains.annotations.ApiStatus;
@@ -11,18 +12,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Supplier;
 
 /**
+ * 应用程序管理器
  * Provides access to the {@link Application}.
  */
 public class ApplicationManager {
   protected static Application ourApplication;
 
   public static Application getApplication() {
+    //System.out.println("获取应用程序管理器实例开始！");
+    //System.out.println(DefaultLogger.getStackTrace(false));
     return ourApplication;
   }
 
   @ApiStatus.Internal
   public static void setApplication(@Nullable Application instance) {
+    System.out.println("设置应用程序管理器实例开始" + instance );
+    System.out.println(DefaultLogger.getStackTrace(false));
     ourApplication = instance;
+    // 缓存单例注册表，   清理缓存字段
     CachedSingletonsRegistry.cleanupCachedFields();
   }
 

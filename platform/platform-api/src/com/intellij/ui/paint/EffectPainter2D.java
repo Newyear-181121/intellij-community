@@ -45,6 +45,7 @@ public enum EffectPainter2D implements RegionPainter2D<Font> {
         LinePainter2D.paint(g, x, y + 1, x + width, y + 1);
       }
       else {
+        // 画下划线
         paintUnderline(g, x, y, width, height, font, 1, this);
       }
     }
@@ -159,15 +160,31 @@ public enum EffectPainter2D implements RegionPainter2D<Font> {
     return height > 7 && Registry.is("ide.text.effect.new.scale") ? height / 2 : 3;
   }
 
+  /**
+   * 绘制下划线
+   * @param g
+   * @param x
+   * @param y
+   * @param width
+   * @param height
+   * @param font
+   * @param thickness 厚度
+   * @param painter
+   */
   private static void paintUnderline(Graphics2D g, double x, double y, double width, double height, Font font, double thickness, EffectPainter2D painter) {
     if (width > 0 && height > 0) {
       if (Registry.is("ide.text.effect.new.metrics")) {
         if (font == null) font = g.getFont();
+        // 围绕模型
         RoundingMode roundingMode = !JreHiDpiUtil.isJreHiDPIEnabled() || painter != WAVE_UNDERSCORE || font.getSize2D() / UISettings.getDefFontSize() > 1 ?
                                     RoundingMode.FLOOR : RoundingMode.CEIL;
+        // 行指标
         LineMetrics metrics = font.getLineMetrics("", g.getFontRenderContext());
+        // 开发像素
         double devPixel = PaintUtil.devPixel(g);
+        // 下划线厚度
         double underlineThickness = maybeScaleFontMetricsThickness(metrics.getUnderlineThickness(), font);
+        // 下划线偏移
         double underlineOffset = Math.max(devPixel, metrics.getUnderlineOffset());
 
         boolean positive = thickness * underlineThickness > 0;
@@ -226,6 +243,15 @@ public enum EffectPainter2D implements RegionPainter2D<Font> {
     drawLine(g, x, y, width, height, painter);
   }
 
+  /**
+   * 绘制线条
+   * @param g
+   * @param x
+   * @param y
+   * @param width
+   * @param height
+   * @param painter
+   */
   private static void drawLine(Graphics2D g, double x, double y, double width, double height, EffectPainter2D painter) {
     if (painter == BOLD_DOTTED_UNDERSCORE) {
       double dx = (x % height + height) % height;

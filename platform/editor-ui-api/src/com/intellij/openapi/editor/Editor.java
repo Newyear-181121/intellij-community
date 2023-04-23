@@ -24,6 +24,8 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 
 /**
+ * 编辑器
+ * 表示文本编辑器的一个实例。
  * Represents an instance of a text editor.
  * <p>
  * The data source of an editor consists of:
@@ -86,13 +88,28 @@ import java.awt.geom.Point2D;
 public interface Editor extends UserDataHolder {
   Editor[] EMPTY_ARRAY = new Editor[0];
 
-  /** Returns the document edited or viewed in the editor. */
+  /**
+   * 返回在编辑器中编辑或查看的文档。
+   *  Returns the document edited or viewed in the editor.
+   */
   @NotNull Document getDocument();
 
-  /** Returns whether the editor operates in viewer mode, with all modification actions disabled. */
+  /**
+   * 编辑器是否是查看器
+   * <br/>
+   * 返回指示编辑器是否在查看器模式下运行的值，所有修改操作都被禁用。
+   * <br/>
+   * Returns the value indicating whether the editor operates in viewer mode, with
+   * all modification actions disabled.
+   *
+   * @return {@code true} if the editor works as a viewer, {@code false} otherwise.
+   */
   boolean isViewer();
 
   /**
+   * 返回整个编辑器的组件，包括滚动条、错误条、装订线和其他装饰。
+   * 例如，该组件可用于将逻辑坐标转换为屏幕坐标。
+   * <br/>
    * Returns the component for the entire editor, including the scrollbars, error stripe, gutter
    * and other decorations. The component can be used, for example, for converting logical to
    * screen coordinates.
@@ -100,6 +117,9 @@ public interface Editor extends UserDataHolder {
   @NotNull JComponent getComponent();
 
   /**
+   * 返回编辑器内容区域的组件（显示文档文本的区域）。
+   * 例如，该组件可用于将逻辑坐标转换为屏幕坐标。该实例正在实现 {@link DataProvider}。
+   * <br/>
    * Returns the component for the content area of the editor (the area displaying the document text).
    * The component can be used, for example, for converting logical to screen coordinates.
    * The instance is implementing {@link DataProvider}.
@@ -111,97 +131,170 @@ public interface Editor extends UserDataHolder {
   Insets getInsets();
 
   /**
+   * 返回编辑器的选择模型，可用于选择文档中的文本范围并检索有关选择的信息。
+   * <br/>
    * Returns the selection model for the editor, which can be used to select ranges of text in
    * the document and retrieve information about the selection.
    * <p>
+   *   要查询或更改特定插入符号的选择，应使用 {@link CaretModel} 接口。
    * To query or change selections for specific carets, see {@link #getCaretModel()}.
    */
   @NotNull SelectionModel getSelectionModel();
 
   /**
+   * 获取标记模型
+   * <br/>
+   * 返回编辑器的标记模型。
+   * 此模型包含特定于编辑器的荧光笔（例如，由“文件中的突出显示用法”添加的荧光笔），这些荧光笔是在文档标记模型中包含的荧光笔之外绘制的。
    * Returns the markup model for the editor. This model contains editor-specific highlighters
    * (for example, highlighters added by "Highlight usages in file"), which are painted in addition
    * to the highlighters contained in the markup model for the document.
    * <p>
    * See also {@link com.intellij.openapi.editor.impl.DocumentMarkupModel#forDocument(Document, Project, boolean)}
    * {@link com.intellij.openapi.editor.ex.EditorEx#getFilteredDocumentMarkupModel()}.
+   *
+   * @return the markup model instance.  标记模型实例。
    */
   @NotNull MarkupModel getMarkupModel();
 
   /**
+   * 获取折叠模型
+   * <br/>
+   *
+   * 返回文档的折叠模型，可用于添加、删除、展开或折叠文档中的折叠区域。
    * Returns the folding model for the document, which can be used to add, remove, expand
    * or collapse folded regions in the document.
    */
   @NotNull FoldingModel getFoldingModel();
 
   /**
+   * 获取滚动模型
+   * <br/>
+   * 返回文档的滚动模型，可用于滚动文档并检索有关滚动条当前位置的信息。
    * Returns the scrolling model for the document, which can be used to scroll the document
    * and retrieve information about the current position of the scrollbars.
    */
   @NotNull ScrollingModel getScrollingModel();
 
   /**
+   * 获取插入符号模型
+   * <br/>
+   * 返回文档的插入符号模型，可用于向编辑器添加和删除插入符号，以及查询和更新插入符号和相应选择的位置。
    * Returns the caret model for the document, which can be used to add and remove carets to the editor, as well as to query and update
    * carets' and corresponding selections' positions.
    */
   @NotNull CaretModel getCaretModel();
 
   /**
+   * 获取软包装模型
+   * <br/>
+   * 返回文档的软包装模型，可用于获取当前为编辑器文档注册的软包装信息，并为其提供基本的管理功能。
    * Returns the soft wrap model for the document, which can be used to get information about soft wraps registered
    * for the editor document at the moment and provides basic management functions for them.
    */
   @NotNull SoftWrapModel getSoftWrapModel();
 
   /**
+   * 获取设置
+   * <br/>
+   * 返回此编辑器实例的编辑器设置。对这些设置的更改仅影响当前编辑器实例。
    * Returns the editor settings for this editor instance.
    * Changes to these settings affect only the current editor instance.
    */
   @NotNull EditorSettings getSettings();
 
   /**
+   * 获取配色方案
+   * <br/>
+   * 返回此编辑器实例的编辑器配色方案。对方案的更改仅影响当前编辑器实例。
    * Returns the editor color scheme for this editor instance.
    * Changes to the scheme affect only the current editor instance.
    */
   @NotNull EditorColorsScheme getColorsScheme();
 
-  /** Returns the height of a single line of text in the current editor font, in pixels. */
+  /**
+   * 获取行高
+   * <br/>
+   * 返回当前编辑器字体中单行文本的高度
+   * Returns the height of a single line of text in the current editor font.
+   *
+   * @return the line height in pixels.
+   */
   int getLineHeight();
 
   /**
-   * Maps a logical position in the editor to pixel coordinates,
-   * relative to the top left corner of the {@linkplain #getContentComponent() content component}.
+   * 逻辑位置到 XY
+   * <br/>
+   * 将编辑器中的逻辑位置映射到像素坐标
+   * Maps a logical position in the editor to pixel coordinates,  逻辑立场
+   * relative to the top left corner of the {@linkplain #getContentComponent() content component}.相对于 {@link getContentComponent() 内容组件} 的左上角的坐标。
    */
   @NotNull Point logicalPositionToXY(@NotNull LogicalPosition pos);
 
-  /** Maps a logical position in the editor to the offset in the document. */
+  /**
+   * 逻辑位置到偏移
+   * <br/>
+   * 将编辑器中的逻辑位置映射到文档中的偏移量。
+   * Maps a logical position in the editor to the offset in the document.
+   *
+   * @param pos the logical position.
+   * @return the corresponding offset in the document.  文档中的相应偏移量。
+   */
   int logicalPositionToOffset(@NotNull LogicalPosition pos);
 
   /**
+   * 逻辑到视觉位置
+   * <br/>
+   * 将编辑器中的逻辑位置（忽略折叠的行和列）映射到可视位置（折叠的行和列不包括在行和列计数中）。
    * Maps a logical position in the editor (the line and column ignoring folding) to
    * a visual position (with folded lines and columns not included in the line and column count).
+   *
+   * @param logicalPos the logical position.
+   * @return the corresponding visual position.  对应的视觉位置
    */
   @NotNull VisualPosition logicalToVisualPosition(@NotNull LogicalPosition logicalPos);
 
   /**
+   * 到 XY 的视觉位置
+   * <br/>
+   * 将编辑器中的视觉位置映射到像素坐标。
    * Maps a visual position in the editor to pixel coordinates,
    * relative to the top left corner of the {@linkplain #getContentComponent() content component}.
    */
   @NotNull Point visualPositionToXY(@NotNull VisualPosition visible);
 
-  /** Same as {@link #visualPositionToXY(VisualPosition)}, but returns a potentially more precise result. */
+  /**
+   * 视觉位置到点 2 D
+   * <br/>
+   * 与 {@link visualPositionToXY(VisualPosition)} 相同，但可能返回更精确的结果。
+   * Same as {@link #visualPositionToXY(VisualPosition)}, but returns potentially more precise result.
+   */
   @NotNull Point2D visualPositionToPoint2D(@NotNull VisualPosition pos);
 
   /**
+   * 视觉到逻辑位置
+   * <br/>
+   * 将编辑器中的视觉位置（折叠的行和列不包括在行和列计数中）映射到逻辑位置（忽略折叠的行和列）。
    * Maps a visual position in the editor (with folded lines and columns not included in the line and column count) to
    * a logical position (the line and column ignoring folding).
    */
   @NotNull LogicalPosition visualToLogicalPosition(@NotNull VisualPosition visiblePos);
 
+  /**
+   * 视觉偏移位置
+   * @param pos
+   * @return
+   */
   default int visualPositionToOffset(@NotNull VisualPosition pos) {
     return logicalPositionToOffset(visualToLogicalPosition(pos));
   }
 
   /**
+   * 偏移到逻辑位置
+   * <br/>
+   * 将文档中的偏移量映射到逻辑位置。
+   * <p>
+   *   假设原始位置与给定偏移量之前的字符相关联，因此目标逻辑位置将 {@link LogicalPositionleansForward leansForward} 值设置为 {@code false}。
    * Maps an offset in the document to a logical position.
    * <p>
    * It's assumed that the original position is associated with the character immediately preceding the given offset,
@@ -285,15 +378,29 @@ public interface Editor extends UserDataHolder {
     return visualPositionToPoint2D(visualPosition);
   }
 
+  /**
+   *
+   * @param visualLine
+   * @return
+   */
   default int visualLineToY(int visualLine) {
     return visualPositionToXY(new VisualPosition(visualLine, 0)).y;
   }
 
+  /**
+   * y 到视线
+   * @param y
+   * @return
+   */
   default int yToVisualLine(int y) {
     return xyToVisualPosition(new Point(0, y)).line;
   }
 
   /**
+   * 视觉线到 Y 范围
+   * <br/>
+   * 返回对应于给定视线的 Y 坐标范围（不包括关联的块镶嵌）。
+   * <br/>
    * Returns the range of Y coordinates corresponding to the given visual line (not including associated block inlays).
    *
    * @return array of length 2, containing boundaries of the target Y range
@@ -307,12 +414,20 @@ public interface Editor extends UserDataHolder {
   }
 
   /**
+   * 添加编辑器鼠标监听器
+   * <br/>
+   * 添加一个侦听器，用于接收有关编辑器中鼠标单击和鼠标进入退出编辑器的通知。
+   * <br/>
    * Adds a listener for receiving notifications about mouse clicks in the editor and
    * the mouse entering/exiting the editor.
    */
   void addEditorMouseListener(@NotNull EditorMouseListener listener);
 
   /**
+   * 添加编辑器鼠标监听器
+   * <br/>
+   * 添加一个侦听器，用于接收有关编辑器中鼠标单击和鼠标进入退出编辑器的通知。当给定的父一次性被释放时，监听器被移除。
+   * <br/>
    * Adds a listener for receiving notifications about mouse clicks in the editor and
    * the mouse entering/exiting the editor.
    * The listener is removed when the given parent disposable is disposed.
@@ -323,15 +438,29 @@ public interface Editor extends UserDataHolder {
   }
 
   /**
+   * 删除编辑器鼠标监听器
+   * <br/>
+   * 删除一个侦听器，用于接收有关编辑器中的鼠标单击和鼠标进入退出编辑器的通知。
+   * <br/>
    * Removes a listener for receiving notifications about mouse clicks in the editor and
    * the mouse entering/exiting the editor.
    */
   void removeEditorMouseListener(@NotNull EditorMouseListener listener);
 
-  /** Adds a listener for receiving notifications about mouse movement in the editor. */
+  /**
+   * 添加编辑器鼠标运动监听器
+   *<br/>
+   * 添加一个侦听器，用于在编辑器中接收有关鼠标移动的通知。
+   * Adds a listener for receiving notifications about mouse movement in the editor.
+   *
+   * @param listener the listener instance.
+   */
   void addEditorMouseMotionListener(@NotNull EditorMouseMotionListener listener);
 
   /**
+   * 添加编辑器鼠标运动监听器
+   * <br/>
+   * 添加一个侦听器，用于在编辑器中接收有关鼠标移动的通知。当给定的父一次性被释放时，监听器被移除。
    * Adds a listener for receiving notifications about mouse movement in the editor.
    * The listener is removed when the given parent disposable is disposed.
    */
@@ -340,67 +469,153 @@ public interface Editor extends UserDataHolder {
     Disposer.register(parentDisposable, () -> removeEditorMouseMotionListener(listener));
   }
 
-  /** Removes a listener for receiving notifications about mouse movement in the editor. */
+  /**
+   * 删除一个侦听器，用于接收有关编辑器中鼠标移动的通知。
+   * Removes a listener for receiving notifications about mouse movement in the editor.
+   *
+   * @param listener the listener instance.
+   */
   void removeEditorMouseMotionListener(@NotNull EditorMouseMotionListener listener);
 
-  /** Returns whether this editor instance has been disposed. */
+  /**
+   * 被处置
+   * <br/>
+   * 检查此编辑器实例是否已被释放。
+   * <br/>
+   * Checks if this editor instance has been disposed.
+   *
+   * @return {@code true} if the editor has been disposed, {@code false} otherwise.
+   */
   boolean isDisposed();
 
-  /** Returns the project to which the editor is related, if any. */
-  @Nullable Project getProject();
-
-  /** Returns the file being edited, if any. */
-  default VirtualFile getVirtualFile() {
+    default VirtualFile getVirtualFile() {
     return null;
   }
 
-  /** Returns whether the editor is in insert mode instead of overwrite mode. */
+  /**
+   * Returns the project to which the editor is related.
+   *
+   * @return the project instance, or {@code null} if the editor is not related to any project.
+   */
+  @Nullable Project getProject();
+
+  /**
+   * 是插入模式
+   * <br/>
+   * 返回编辑器的插入覆盖模式
+   * <br/>
+   * Returns the insert/overwrite mode for the editor.
+   *
+   * @return {@code true} if the editor is in insert mode, {@code false} otherwise.
+   */
   boolean isInsertMode();
 
-  /** Returns whether the editor is in block selection mode instead of offset-based selection. */
+  /**
+   * 是列模式
+   * <br/>
+   * 返回编辑器的块选择模式
+   * <br/>
+   * Returns the block selection mode for the editor.
+   *
+   * @return {@code true} if the editor uses column selection, {@code false} if it uses regular selection.
+   */
   boolean isColumnMode();
 
-  /** Returns whether the editor is a one-line editor (used in a dialog control, for example). */
+  /**
+   * 是单线模式
+   * <br/>
+   * 检查当前编辑器实例是否是单行编辑器（例如，在对话框控件中使用）。
+   * <br/>
+   * Checks if the current editor instance is a one-line editor (used in a dialog control, for example).
+   * <br/>
+   *{@code true} 如果编辑器是单行的，{@code false} 否则
+   * @return {@code true} if the editor is one-line, {@code false} otherwise.
+   */
   boolean isOneLineMode();
 
-  /** Returns the gutter instance for the editor, which can be used to draw custom text annotations in the gutter. */
+  /**
+   * 得到排水沟
+   * <br/>
+   * 返回编辑器的装订线实例，可用于在装订线中绘制自定义文本注释。
+   * Returns the gutter instance for the editor, which can be used to draw custom text annotations
+   * in the gutter.
+   *
+   * @return the gutter instance.
+   */
   @NotNull EditorGutter getGutter();
 
   /**
+   * 获取鼠标事件区
+   * <br/>
+   * 返回发生指定鼠标事件的编辑器区域（文本、装订线、折叠轮廓等）。
    * Returns the editor area (text, gutter, folding outline and so on) in which the specified mouse event occurred.
    *
+   * @param e the mouse event for which the area is requested.
    * @return the editor area, or {@code null} if the event occurred over an unknown area.
    */
   @Nullable EditorMouseEventArea getMouseEventArea(@NotNull MouseEvent e);
 
   /**
+   * 设置标题组件
+   * <br/>
+   * 为此文本编辑器设置标题组件。请注意，这用于文本查找功能，因此一旦用户按下 Ctrl+F，您的组件很可能会被重置。
    * Set up a header component for this text editor.
    * <p>
    * Please note that this is used for the textual find feature,
    * so your component will most probably be reset once the user presses Ctrl+F.
-   *
+   *<br/>
+   * 要设置为此文本编辑器的标题的组件或 {@code null} 以删除现有的组件。
    * @param header a component to set up as the header for this text editor, or {@code null} to remove existing one.
    */
   void setHeaderComponent(@Nullable JComponent header);
 
-  /** Returns whether the editor has an active header component set up by {@link #setHeaderComponent(JComponent)}. */
+  /**
+   * 有标题组件
+   * <br/>
+   * 如果此编辑器具有由 setHeaderComponent(JComponent) 设置的活动标题组件，则为 true
+   * @return {@code true} if this editor has active header component set up by {@link #setHeaderComponent(JComponent)}
+   */
   boolean hasHeaderComponent();
 
-  /** @return the component set by {@link #setHeaderComponent(JComponent)}, or {@code null} if no header is currently installed. */
+  /**
+   * 获取头组件
+   * <br/>
+   * 如果当前没有安装标头，则由 {@link setHeaderComponent(JComponent)} 或 {@code null} 设置的组件。
+   * @return a component set by {@link #setHeaderComponent(JComponent)} or {@code null} if no header currently installed.
+   */
   @Nullable JComponent getHeaderComponent();
 
+  /**
+   * 获取缩进模型
+   * @return
+   */
   @NotNull IndentsModel getIndentsModel();
 
+  /**
+   * 获取镶嵌模型
+   * @return
+   */
   /** Returns the inlay model, which allows adding custom visual elements to the editor's representation. */
   @NotNull InlayModel getInlayModel();
 
+  /**
+   * 获取荧光笔
+   * @return
+   */
   @NotNull EditorKind getEditorKind();
 
+  /**
+   * 获取荧光笔
+   * @return
+   */
   default @NotNull EditorHighlighter getHighlighter() {
     return EditorCoreUtil.createEmptyHighlighter(getProject(), getDocument());
   }
 
   /**
+   * 获得上升
+   * <br/>
+   * 视线顶部（相应坐标由 {@link visualLineToY(int)}、{@link visualPositionToXY(VisualPosition)} 等返回）和该视线中文本的基线之间的垂直距离，以像素为单位。
    * The vertical distance, in pixels, between the top of the visual line
    * and the baseline of the text in that visual line.
    * <p>

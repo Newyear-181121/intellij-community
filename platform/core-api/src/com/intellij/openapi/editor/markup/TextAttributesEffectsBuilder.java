@@ -14,6 +14,8 @@ import static com.intellij.openapi.editor.markup.EffectType.*;
 import static com.intellij.openapi.editor.markup.TextAttributesEffectsBuilder.EffectSlot.*;
 
 /**
+ * 文本属性财产构建器
+ * <br/>
  * Allows to build effects for the TextAttributes. Allows to cover effects on the current state and slip effects under it.
  */
 public final class TextAttributesEffectsBuilder {

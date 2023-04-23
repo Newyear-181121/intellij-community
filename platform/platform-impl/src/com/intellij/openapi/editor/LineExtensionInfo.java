@@ -13,6 +13,7 @@ import java.awt.*;
 /**
  * Adds informational text to the end of a line in a text editor.
  *
+ * 行扩展信息
  * @author Konstantin Bulenkov
  */
 public class LineExtensionInfo {

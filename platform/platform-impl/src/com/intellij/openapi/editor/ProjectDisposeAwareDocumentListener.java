@@ -9,6 +9,10 @@ import org.jetbrains.annotations.NotNull;
 
 // PsiChangeHandler is used in a light tests, where project is not disposed on close, so, listener is not removed on close,
 // so, we have to check isDisposed explicitly
+
+/**
+ * 项目处理感知文档侦听器
+ */
 public final class ProjectDisposeAwareDocumentListener implements DocumentListener {
   private final Project project;
   private final DocumentListener listener;

@@ -21,9 +21,13 @@ public final class AssertiveRepaintManager extends RepaintManager {
   private WeakReference<Component> myLastComponent;
 
 
+  /**
+   * 断言 的重绘管理器
+   */
   public AssertiveRepaintManager() {
     super();
 
+    // 唯一的公共构造函数禁用双缓冲，所以我们应该尝试启用它。
     // The only public constructor disables double buffering so we should try to enable it.
     try {
       Field defaultSettingField = RepaintManager.class.getDeclaredField("BUFFER_STRATEGY_TYPE");

@@ -532,10 +532,18 @@ public final class PluginManagerCore {
     return applied;
   }
 
+  /**
+   * 调度描述符加载
+   * 避免暴露 DescriptorListLoadingContext 类的单独方法
+   */
   public static void scheduleDescriptorLoading(@NotNull CoroutineScope coroutineScope) {
     scheduleDescriptorLoading(coroutineScope, null);
   }
 
+  /**
+   * 获取或安排加载
+   * @return
+   */
   @ApiStatus.Internal
   public static synchronized void scheduleDescriptorLoading(@NotNull CoroutineScope coroutineScope, @Nullable Deferred<ZipFilePool> zipFilePoolDeferred) {
     if (initFuture == null) {
@@ -1058,6 +1066,12 @@ public final class PluginManagerCore {
     };
   }
 
+  /**
+   * 加载和初始化插件
+   * @param context
+   * @param coreLoader
+   * @return
+   */
   @SuppressWarnings("NonPrivateFieldAccessedInSynchronizedContext")
   static synchronized @NotNull PluginSet initializeAndSetPlugins(@NotNull DescriptorListLoadingContext context,
                                                                  @NotNull PluginLoadingResult loadingResult,

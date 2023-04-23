@@ -10,6 +10,9 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 
 
+/**
+ * 编辑器投递处理器
+ */
 public interface EditorDropHandler {
   boolean canHandleDrop(@NotNull DataFlavor @NotNull [] transferFlavors);
   void handleDrop(@NotNull Transferable t, @Nullable Project project, @Nullable EditorWindow editorWindow);

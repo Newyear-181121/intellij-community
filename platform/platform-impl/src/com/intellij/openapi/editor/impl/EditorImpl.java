@@ -124,49 +124,159 @@ import java.util.function.Predicate;
 
 import static com.intellij.openapi.editor.ex.util.EditorUtil.isCaretInsideSelection;
 
+/**
+ * 编辑器实现，
+ *
+ *  继承
+ *    用户数据持有人基础 类
+ *
+ *  实现
+ *    编辑器接口
+ *    高亮客户端接口
+ *    快速查询接口
+ *    转储接口
+ *    代码样式设置监听器 接口
+ *    焦点监听器 接口
+ *
+ */
 public final class EditorImpl extends UserDataHolderBase implements EditorEx, HighlighterClient, Queryable, Dumpable,
                                                                     CodeStyleSettingsListener, FocusListener {
+  /**
+   * 文字左对齐
+   */
   public static final int TEXT_ALIGNMENT_LEFT = 0;
+  /**
+   * 文本右对齐
+   */
   public static final int TEXT_ALIGNMENT_RIGHT = 1;
 
+  /**
+   * 最小字体大小
+   */
   private static final float MIN_FONT_SIZE = 8;
+  /**
+   * 日志
+   */
   private static final Logger LOG = Logger.getInstance(EditorImpl.class);
+  /**
+   * 事件日志
+   */
   static final Logger EVENT_LOG = Logger.getInstance("editor.input.events");
+  /**
+   * 免打扰命令组
+   */
   private static final Object DND_COMMAND_GROUP = ObjectUtils.sentinel("DndCommand");
+  /**
+   * 鼠标拖动命令组
+   */
   private static final Object MOUSE_DRAGGED_COMMAND_GROUP = ObjectUtils.sentinel("MouseDraggedGroup");
+  /**
+   * 永久标题
+   */
   private static final Key<JComponent> PERMANENT_HEADER = Key.create("PERMANENT_HEADER");
+  /**
+   * 包含双向文本
+   */
   static final Key<Boolean> CONTAINS_BIDI_TEXT = Key.create("contains.bidi.text");
+  /**
+   * 强制软包装
+   */
   public static final Key<Boolean> FORCED_SOFT_WRAPS = Key.create("forced.soft.wraps");
+  /**
+   * 存在软包装
+   */
   public static final Key<Boolean> SOFT_WRAPS_EXIST = Key.create("soft.wraps.exist");
+  /**
+   * 禁用插入位置保持
+   */
   @SuppressWarnings("WeakerAccess")
   public static final Key<Boolean> DISABLE_CARET_POSITION_KEEPING = Key.create("editor.disable.caret.position.keeping");
+  /**
+   * 禁用插入空格的插入符号移位
+   */
   public static final Key<Boolean> DISABLE_CARET_SHIFT_ON_WHITESPACE_INSERTION =
     Key.create("editor.disable.caret.shift.on.whitespace.insertion");
+  /**
+   * 三次单击时的荣誉骆驼驼峰
+   */
   private static final boolean HONOR_CAMEL_HUMPS_ON_TRIPLE_CLICK =
     Boolean.parseBoolean(System.getProperty("idea.honor.camel.humps.on.triple.click"));
+  /**
+   * 缓存
+   */
   private static final Key<BufferedImage> BUFFER = Key.create("buffer");
+  /**
+   * 初始化
+   */
   private static final Key<Boolean> INITIALIZED = Key.create("editor.is.fully.initialized");
+  /**
+   * 我的文档
+   */
   private final @NotNull DocumentEx myDocument;
 
+  /**
+   * 我的面板
+   */
   private final JPanel myPanel;
+  /**
+   * 滚动窗格
+   */
   private final @NotNull JScrollPane myScrollPane;
+  /**
+   * 我的编辑器组件
+   */
   private final @NotNull EditorComponentImpl myEditorComponent;
+  /**
+   * 编辑器 装订线 组件
+   */
   private final @NotNull EditorGutterComponentImpl myGutterComponent;
+  /**
+   * 我的可追踪一次性用品
+   */
   private final TraceableDisposable myTraceableDisposable = new TraceableDisposable(true);
+  /**
+   * 焦点模式模型
+   */
   private final FocusModeModel myFocusModeModel;
+  /**
+   * 我最后输入的操作时间戳
+   */
   private volatile long myLastTypedActionTimestamp = -1;
+  /**
+   * 我最后输入的操作
+   */
   private String myLastTypedAction;
+  /**
+   * 延迟监听器
+   */
   private LatencyListener myLatencyPublisher;
 
+  /**
+   * 空光标
+   */
   private static final Cursor EMPTY_CURSOR;
+  /**
+   * 我的自定义光标
+   */
   private final Map<Object, Cursor> myCustomCursors = new LinkedHashMap<>();
+  /**
+   * 我的默认光标
+   */
   private Cursor myDefaultCursor;
+  /**
+   * 我的光标设置在外部
+   */
   boolean myCursorSetExternally;
 
+  /**
+   * 静态初始化空的光标
+   */
   static {
     Cursor emptyCursor = null;
+    // 测试此环境是否支持 显示器，键盘和鼠标
     if (!GraphicsEnvironment.isHeadless()) {
       try {
+        // 创建一个新的自定义光标对象。如果要显示的图像无效，光标将被隐藏（完全透明），热点将设置为 (0, 0)。
         emptyCursor = Toolkit.getDefaultToolkit().createCustomCursor(ImageUtil.createImage(1, 1, BufferedImage.TYPE_INT_ARGB),
                                                                      new Point(),
                                                                      "Empty cursor");
@@ -178,59 +288,166 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     EMPTY_CURSOR = emptyCursor;
   }
 
+  /**
+   * 我的命令处理器
+   */
   private final CommandProcessor myCommandProcessor;
+  /**
+   * 我的垂直滚动条
+   */
   private final @NotNull MyScrollBar myVerticalScrollBar;
 
+  /**
+   * 我的鼠标监听器列表
+   */
   private final List<EditorMouseListener> myMouseListeners = ContainerUtil.createLockFreeCopyOnWriteList();
+  /**
+   * 我的鼠标运动监听器列表
+   */
   private final @NotNull List<EditorMouseMotionListener> myMouseMotionListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
+  /**
+   * 输入模式
+   * 我是插入模式
+   */
   private boolean myIsInsertMode = true;
 
+  /**
+   * 我的插入符号光标
+   */
   private final @NotNull CaretCursor myCaretCursor;
+  /**
+   * 我的滚动计时器
+   */
   private final ScrollingTimer myScrollingTimer = new ScrollingTimer();
 
+  /**
+   * 我的设置
+   */
   private final @NotNull SettingsImpl mySettings;
 
+  /**
+   * 发行了
+   */
   private boolean isReleased;
 
+  /**
+   * 我的鼠标按下事件
+   */
   private @Nullable MouseEvent myMousePressedEvent;
+  /**
+   * 我的鼠标移动事件
+   */
   private @Nullable MouseEvent myMouseMovedEvent;
 
+  /**
+   * 我的鼠标监听器
+   */
   private final MouseListener myMouseListener = new MyMouseAdapter();
+  /**
+   * 我的鼠标运动监听器
+   */
   private final MouseMotionListener myMouseMotionListener = new MyMouseMotionListener();
 
   /**
+   * 保存有关按下鼠标的区域的信息。
    * Holds information about area where mouse was pressed.
    */
   private @Nullable EditorMouseEventArea myMousePressArea;
+  /**
+   * 我保存的选择开始
+   */
   private int mySavedSelectionStart = -1;
+  /**
+   * 我保存的选择结束
+   */
   private int mySavedSelectionEnd = -1;
 
+  /**
+   * 属性变化支持
+   */
   private final PropertyChangeSupport myPropertyChangeSupport = new PropertyChangeSupport(this);
+  /**
+   * 我的可编辑
+   */
   private MyEditable myEditable;
 
+  /**
+   * 编辑器配色方案
+   */
   private @NotNull EditorColorsScheme myScheme;
+  /**
+   * 我是查看器
+   */
   private boolean myIsViewer;
+  /**
+   * 我的选择模型
+   */
   private final @NotNull SelectionModelImpl mySelectionModel;
+  /**
+   * 编辑器标记模型
+   */
   private final @NotNull EditorMarkupModelImpl myMarkupModel;
+  /**
+   * 编辑器过滤标记模型
+   */
   private final @NotNull EditorFilteringMarkupModelEx myDocumentMarkupModel;
+  /**
+   * 标记模型监听器
+   */
   private final @NotNull MarkupModelListener myMarkupModelListener;
+  /**
+   * 高亮监听器列表
+   */
   private final @NotNull List<HighlighterListener> myHighlighterListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
+  /**
+   * 折叠模型
+   */
   private final @NotNull FoldingModelImpl myFoldingModel;
+  /**
+   * 滚动模型实现
+   */
   private final @NotNull ScrollingModelImpl myScrollingModel;
+  /**
+   * 插入符号模型实现
+   */
   private final @NotNull CaretModelImpl myCaretModel;
+  /**
+   * 软包装模型实施
+   */
   private final @NotNull SoftWrapModelImpl mySoftWrapModel;
+  /**
+   * 镶嵌模型实施
+   */
   private final @NotNull InlayModelImpl myInlayModel;
 
+  /**
+   * 重绘光标命令，  我们的插入符号闪烁命令
+   */
   private static final @NotNull RepaintCursorCommand ourCaretBlinkingCommand = new RepaintCursorCommand();
 
+  /**
+   * 我的鼠标选择状态
+   */
   @MouseSelectionState
   private int myMouseSelectionState;
+  /**
+   * 我的鼠标选择区域
+   */
   private @Nullable FoldRegion myMouseSelectedRegion;
 
+  /**
+   * 我的水平文本对齐， 默认文字左对齐
+   */
   private int myHorizontalTextAlignment = TEXT_ALIGNMENT_LEFT;
 
+  /**
+   * 鼠标选择状态  常量定义
+   *  无选择
+   *  子选择
+   *  行选择
+   */
   @MagicConstant(intValues = {MOUSE_SELECTION_STATE_NONE, MOUSE_SELECTION_STATE_LINE_SELECTED, MOUSE_SELECTION_STATE_WORD_SELECTED})
   private @interface MouseSelectionState {
   }
@@ -239,134 +456,355 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   private static final int MOUSE_SELECTION_STATE_WORD_SELECTED = 1;
   private static final int MOUSE_SELECTION_STATE_LINE_SELECTED = 2;
 
+  /**
+   * 编辑器高亮
+   */
   private volatile EditorHighlighter myHighlighter; // updated in EDT, but can be accessed from other threads (under read action)
+  /**
+   * 我的 一次性的高亮显示器
+   */
   private Disposable myHighlighterDisposable = Disposer.newDisposable();
+  /**
+   * 文字绘制回调
+   */
   private final TextDrawingCallback myTextDrawingCallback = new MyTextDrawingCallback();
 
+  /**
+   * 滚动条方向， 常量定义， 左，右
+   */
   @MagicConstant(intValues = {VERTICAL_SCROLLBAR_LEFT, VERTICAL_SCROLLBAR_RIGHT})
   private int myScrollBarOrientation;
+  /**
+   * 我在鼠标按下时保持选择
+   */
   private boolean myKeepSelectionOnMousePress;
 
+  /**
+   * 我的更新光标
+   */
   private boolean myUpdateCursor;
+  /**
+   * 我的滚动位置保持器
+   * 编辑器滚动位置保持器
+   */
   private final EditorScrollingPositionKeeper myScrollingPositionKeeper;
+  /**
+   * 我的恢复滚动位置
+   */
   private boolean myRestoreScrollingPosition;
+  /**
+   * 我的重绘范围开始
+   */
   private int myRangeToRepaintStart;
+  /**
+   * 我的重绘范围结束
+   */
   private int myRangeToRepaintEnd;
 
+  /**
+   * 我的项目
+   */
   private final @Nullable Project myProject;
+  /**
+   * 我的鼠标选择更改时间戳
+   */
   private long myMouseSelectionChangeTimestamp;
+  /**
+   * 我为 DND Undo Hack 保存的插入符号偏移量
+   */
   private int mySavedCaretOffsetForDNDUndoHack;
+  /**
+   * 我的焦点监听器列表
+   */
   private final List<FocusChangeListener> myFocusListeners = ContainerUtil.createLockFreeCopyOnWriteList();
 
+  /**
+   * 我的输入法请求处理程序
+   */
   private MyInputMethodHandler myInputMethodRequestsHandler;
+  /**
+   * 输入法请求， 我的输入法请求 Swing Wrapper
+   */
   private InputMethodRequests myInputMethodRequestsSwingWrapper;
+  /**
+   * 我是单线模式
+   */
   private boolean myIsOneLineMode;
   private final MouseDragSelectionEventHandler mouseDragHandler = new MouseDragSelectionEventHandler(e -> {
     processMouseDragged(e);
     return Unit.INSTANCE;
   });
+
+  /**
+   * 我是渲染器模式
+   */
   private boolean myIsRendererMode;
+  /**
+   * 我的虚拟文件
+   */
   private VirtualFile myVirtualFile;
+  /**
+   * 我是列模式
+   */
   private boolean myIsColumnMode;
+  /**
+   * 我的强迫背景
+   */
   private @Nullable Color myForcedBackground;
+  /**
+   * 我的首选尺寸
+   */
   private @Nullable Dimension myPreferredSize;
 
+  /**
+   * 我的鼠标选择状态警报
+   */
   private final Alarm myMouseSelectionStateAlarm = new Alarm();
+  /**
+   * 我的鼠标选择状态重置  可运行
+   */
   private Runnable myMouseSelectionStateResetRunnable;
 
+  /**
+   * 是否嵌入到对话框包装器
+   */
   private boolean myEmbeddedIntoDialogWrapper;
+  /**
+   * 我在装订线选择起始线上拖动
+   */
   private int myDragOnGutterSelectionStartLine = -1;
+  /**
+   * 我的拖动范围
+   */
   private RangeMarker myDraggedRange;
+  /**
+   * 是否开始拖动
+   */
   private boolean myDragStarted;
 
+  /**
+   * 我的标题面板
+   */
   private final @NotNull JPanel myHeaderPanel;
 
+  /**
+   * 我的初始鼠标事件
+   */
   private @Nullable MouseEvent myInitialMouseEvent;
+  /**
+   * 是否忽略 鼠标事件 连续初始化
+   */
   private boolean myIgnoreMouseEventsConsecutiveToInitial;
 
+  /**
+   * 编辑器放置处理程序
+   */
   private EditorDropHandler myDropHandler;
 
+  /**
+   * 我的突出显示过滤器
+   */
   private Predicate<? super RangeHighlighter> myHighlightingFilter;
 
+  /**
+   * 我的缩进模型
+   */
   private final @NotNull IndentsModel myIndentsModel;
 
+  /**
+   * 我的占位符文本（字符序列）
+   */
   private @Nullable CharSequence myPlaceholderText;
+  /**
+   * 我的占位符属性,(文本属性)
+   */
   private @Nullable TextAttributes myPlaceholderAttributes;
+  /**
+   * 聚焦时我的显示占位符
+   */
   private boolean myShowPlaceholderWhenFocused;
 
+  /**
+   * 我的粘性选择
+   */
   private boolean myStickySelection;
+  /**
+   * 我的粘性选择开始
+   */
   private int myStickySelectionStart;
+  /**
+   * 我的滚动到插入符号
+   */
   private boolean myScrollToCaret = true;
 
+  /**
+   * 我的纯绘画模式
+   */
   private boolean myPurePaintingMode;
+  /**
+   * 我的油漆选择
+   */
   private boolean myPaintSelection;
 
+  /**
+   * 编辑器大小调整策略， 我的尺寸调整策略
+   */
   private final EditorSizeAdjustmentStrategy mySizeAdjustmentStrategy = new EditorSizeAdjustmentStrategy();
+  /**
+   * 我的一次性
+   */
   private final Disposable myDisposable = Disposer.newDisposable();
 
+  /**
+   * 上次按下前我的插入符号状态
+   */
   private List<CaretState> myCaretStateBeforeLastPress;
+  /**
+   * 我最后一次鼠标按下的位置
+   */
   LogicalPosition myLastMousePressedLocation;
 
   Point myLastMousePressedPoint;
+  /**
+   * 我的目标多选位置
+   */
   private VisualPosition myTargetMultiSelectionPosition;
+  /**
+   * 我的多项选择正在进行中
+   */
   private boolean myMultiSelectionInProgress;
+  /**
+   * 我的矩形选择正在进行中
+   */
   private boolean myRectangularSelectionInProgress;
+  /**
+   * 我的最后一次新闻创建了插入符号
+   */
   private boolean myLastPressCreatedCaret;
+  /**
+   * 我的最后一次印刷是在 Block Inlay
+   */
   private boolean myLastPressWasAtBlockInlay;
+  // 当鼠标拖动启动的选择（正常或块之一）变得明显（至少选择一个字符）时设置。
   // Set when the selection (normal or block one) initiated by mouse drag becomes noticeable (at least one character is selected).
+  // 在鼠标按下事件时重置
   // Reset on mouse press event.
+  /**
+   * 当前拖动 是 重要的，明显的
+   */
   private boolean myCurrentDragIsSubstantial;
+  /**
+   * 发生强制推送
+   */
   private boolean myForcePushHappened;
 
+  /**
+   * 主要插入符号
+   */
   private CaretImpl myPrimaryCaret;
 
+  /**
+   * 我的禁用 Rtl
+   */
   public final boolean myDisableRtl = Registry.is("editor.disable.rtl");
   /**
+   * 我的分数度量提示值， 获取编辑器分数指标提示
    * @deprecated use UISettings#getEditorFractionalMetricsHint instead
    */
   @Deprecated(forRemoval = true)
   public Object myFractionalMetricsHintValue = UISettings.getEditorFractionalMetricsHint();
 
+  /**
+   * 编辑器视图
+   */
   final EditorView myView;
 
+  /**
+   * 我的字符键被按下
+   */
   private boolean myCharKeyPressed;
+  /**
+   * 我需要选择上一个字符
+   */
   private boolean myNeedToSelectPreviousChar;
 
+  /**
+   * 我的文档更改正在进行中
+   */
   boolean myDocumentChangeInProgress;
+  /**
+   * 我的错误条纹需要重绘
+   */
   private boolean myErrorStripeNeedsRepaint;
 
+  /**
+   * 我的上下文菜单组 ID
+   */
   private String myContextMenuGroupId = IdeActions.GROUP_BASIC_EDITOR_POPUP;
+  /**
+   * 我的弹出处理程序
+   */
   private final List<EditorPopupHandler> myPopupHandlers = new ArrayList<>();
 
+  /**
+   * 我的使用编辑器抗锯齿
+   */
   private boolean myUseEditorAntialiasing = true;
 
+  /**
+   * 我的直接画家
+   */
   private final ImmediatePainter myImmediatePainter;
 
+  /**
+   * 我的线延伸画家
+   */
   private final List<IntFunction<? extends @NotNull Collection<? extends LineExtensionInfo>>> myLineExtensionPainters = new SmartList<>();
 
+  /**
+   * 我们的插入符号闪烁命令， 静态初始化，开始
+   */
   static {
     ourCaretBlinkingCommand.start();
   }
 
+  /**
+   * 我的预期插入符号偏移量
+   */
   private volatile int myExpectedCaretOffset = -1;
 
+  /**
+   * 我的背景图像集
+   */
   private boolean myBackgroundImageSet;
 
+  /**
+   * 我的类型， 编辑器类型
+   */
   private final EditorKind myKind;
 
+  /**
+   * 我的滚动到插入符号
+   */
   private boolean myScrollingToCaret;
 
   EditorImpl(@NotNull Document document, boolean viewer, @Nullable Project project, @NotNull EditorKind kind, @Nullable VirtualFile file) {
-    assertIsDispatchThread();
+    StartUtils.log(true, "初始化编辑器！", document, viewer, project, kind);
+    // 断言是调度线程
+     assertIsDispatchThread();
     myProject = project;
     myDocument = (DocumentEx)document;
     myVirtualFile = file;
+    // 创建绑定颜色方案代表
     myScheme = createBoundColorSchemeDelegate(null);
+    // 我的滚动窗格， 方案初始化后创建 UI
     myScrollPane = new MyScrollPane(); // create UI after scheme initialization
     myIsViewer = viewer;
     myKind = kind;
+    // 设置实例
     mySettings = new SettingsImpl(this, kind);
 
+    // 文档标记模型
     MarkupModelEx documentMarkup = (MarkupModelEx)DocumentMarkupModel.forDocument(myDocument, myProject, true);
 
     mySelectionModel = new SelectionModelImpl(this);
@@ -383,15 +821,26 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
 
     myImmediatePainter = new ImmediatePainter(this);
 
+    // 标记模型监听器
     myMarkupModelListener = new MarkupModelListener() {
+      /**
+       * 添加后
+       * @param highlighter 范围高亮器
+       */
       @Override
       public void afterAdded(@NotNull RangeHighlighterEx highlighter) {
+        // 获取指定配色方案的，文本属性
         TextAttributes attributes = highlighter.getTextAttributes(getColorsScheme());
+        //
         onHighlighterChanged(highlighter, canImpactGutterSize(highlighter),
                              EditorUtil.attributesImpactFontStyle(attributes),
                              EditorUtil.attributesImpactForegroundColor(attributes));
       }
 
+      /**
+       * 删除前
+       * @param highlighter
+       */
       @Override
       public void beforeRemoved(@NotNull RangeHighlighterEx highlighter) {
         TextAttributes attributes = highlighter.getTextAttributes(getColorsScheme());
@@ -400,6 +849,13 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
                              EditorUtil.attributesImpactForegroundColor(attributes));
       }
 
+      /**
+       * 属性改变
+       * @param highlighter
+       * @param renderersChanged
+       * @param fontStyleChanged
+       * @param foregroundColorChanged
+       */
       @Override
       public void attributesChanged(@NotNull RangeHighlighterEx highlighter,
                                     boolean renderersChanged, boolean fontStyleChanged, boolean foregroundColorChanged) {
@@ -407,9 +863,19 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
       }
     };
 
+    /**
+     * 添加错误标记侦听器
+     */
     myMarkupModel.addErrorMarkerListener(new ErrorStripeListener() {
+      /**
+       * 错误标记已更改
+       * @param e
+       */
       @Override
       public void errorMarkerChanged(@NotNull ErrorStripeEvent e) {
+        /**
+         * 错误条纹标记已更改
+         */
         errorStripeMarkerChanged((RangeHighlighterEx)e.getHighlighter());
       }
     }, myCaretModel);
@@ -428,9 +894,16 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     myInlayModel.addListener(myFoldingModel, myCaretModel);
     myInlayModel.addListener(myCaretModel, myCaretModel);
 
+    /**
+     * 缩进模型实现
+     */
     myIndentsModel = new IndentsModelImpl(this);
     myCaretModel.addCaretListener(new IndentsModelCaretListener(this));
     myCaretModel.addCaretListener(new CaretListener() {
+      /**
+       * 插入符号位置已更改
+       * @param e
+       */
       @Override
       public void caretPositionChanged(@NotNull CaretEvent e) {
         if (myStickySelection) {
@@ -439,6 +912,10 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
         }
       }
 
+      /**
+       * 插入符号已添加
+       * @param e
+       */
       @Override
       public void caretAdded(@NotNull CaretEvent e) {
         if (myPrimaryCaret != null) {
@@ -448,6 +925,10 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
         myPrimaryCaret = myCaretModel.getPrimaryCaret();
       }
 
+      /**
+       * 插入符号已删除
+       * @param e
+       */
       @Override
       public void caretRemoved(@NotNull CaretEvent e) {
         repaintCaretRegion(e);
@@ -460,27 +941,41 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
 
     myCaretCursor = new CaretCursor();
 
+    // 垂直滚动条右
     myScrollBarOrientation = VERTICAL_SCROLLBAR_RIGHT;
 
+    // 添加软包装更改侦听器
     mySoftWrapModel.addSoftWrapChangeListener(new SoftWrapChangeListener() {
+      /**
+       * 重新计算结束
+       */
       @Override
       public void recalculationEnds() {
         if (myCaretModel.isUpToDate()) {
+          // 更新视觉位置
           myCaretModel.updateVisualPosition();
         }
       }
 
+      /**
+       * 软包装改变
+       */
       @Override
       public void softWrapsChanged() {
+        // 清除 Line To Gutter 渲染器缓存
         myGutterComponent.clearLineToGutterRenderersCache();
       }
     });
 
+    // 默认设置空的高亮显示器
     EditorHighlighter highlighter = new NullEditorHighlighter();
     setHighlighter(highlighter);
 
     new FoldingPopupManager(this);
 
+    /**
+     * 编辑器组件实现
+     */
     myEditorComponent = new EditorComponentImpl(this);
     myVerticalScrollBar = (MyScrollBar)myScrollPane.getVerticalScrollBar();
     if (shouldScrollBarBeOpaque()) {
@@ -534,6 +1029,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
 
     PropertyChangeListener propertyChangeListener = e -> {
       if (Document.PROP_WRITABLE.equals(e.getPropertyName())) {
+        StartUtils.log(true, "编辑器文档重写，重绘");
         myEditorComponent.repaint();
       }
     };
@@ -589,6 +1085,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     fireFocusLost(e);
   }
 
+  /**
+   * 这种范围高亮是否会影响装订线尺寸
+   * @param highlighter 范围高亮显示器
+   * @return
+   */
   private boolean canImpactGutterSize(@NotNull RangeHighlighterEx highlighter) {
     if (highlighter.getGutterIconRenderer() != null) return true;
     LineMarkerRenderer lineMarkerRenderer = highlighter.getLineMarkerRenderer();
@@ -619,20 +1120,34 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     }
   }
 
+  /**
+   * 高亮显示器以更改
+   * @param highlighter
+   * @param canImpactGutterSize
+   * @param fontStyleChanged
+   * @param foregroundColorChanged
+   */
   private void onHighlighterChanged(@NotNull RangeHighlighterEx highlighter,
                                     boolean canImpactGutterSize, boolean fontStyleChanged, boolean foregroundColorChanged) {
+    // 文档是否正在批量更新  或者 在批量处理中
     if (myDocument.isInBulkUpdate() || myInlayModel.isInBatchMode()) return; // will be repainted later
 
+    // 会影响装订线尺寸
     if (canImpactGutterSize) {
+      // 更新装订线尺寸
       updateGutterSize();
     }
 
+    // 我的文档更改正在进行中
     if (myDocumentChangeInProgress) return;
 
     int textLength = myDocument.getTextLength();
+    // 获取受影响区域开始偏移量
     int start = MathUtil.clamp(highlighter.getAffectedAreaStartOffset(), 0, textLength);
+    // 获取受影响区域结束偏移
     int end = MathUtil.clamp(highlighter.getAffectedAreaEndOffset(), 0, textLength);
 
+    // 获取当前可访问线路，
     if (myGutterComponent.getCurrentAccessibleLine() != null &&
         AccessibleGutterLine.isAccessibleGutterElement(highlighter.getGutterIconRenderer())) {
       escapeGutterAccessibleLine(start, end);
@@ -642,6 +1157,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     if (start != end && (fontStyleChanged || foregroundColorChanged)) {
       myView.invalidateRange(start, end, fontStyleChanged);
     }
+    // 不在 批量折叠操作中
     if (!myFoldingModel.isInBatchFoldingOperation()) { // at the end of batch folding operation everything is repainted
       repaintLines(Math.max(0, startLine - 1), Math.min(endLine + 1, getDocument().getLineCount()));
     }
@@ -649,6 +1165,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     updateCaretCursor();
   }
 
+  /**
+   * 镶嵌更新
+   * @param inlay
+   * @param changeFlags
+   */
   private void onInlayUpdated(@NotNull Inlay<?> inlay, int changeFlags) {
     if (myDocument.isInBulkUpdate() || myInlayModel.isInBatchMode()) return;
     if ((changeFlags & InlayModel.ChangeFlags.GUTTER_ICON_PROVIDER_CHANGED) != 0) updateGutterSize();
@@ -683,9 +1204,14 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     updateCaretCursor();
   }
 
+  /**
+   * 如果下面的工具窗口覆盖，则将插入符号移到视图中
+   * @param e
+   */
   private void moveCaretIntoViewIfCoveredByToolWindowBelow(@NotNull VisibleAreaEvent e) {
     ReadAction.run(() -> {
-      Rectangle oldRectangle = e.getOldRectangle();
+      StartUtils.log("编辑器的滚动模型记录");
+    Rectangle oldRectangle = e.getOldRectangle();
       Rectangle newRectangle = e.getNewRectangle();
       if (!myScrollingToCaret &&
           oldRectangle != null &&
@@ -734,6 +1260,10 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     return ColorUtil.isDark(getBackgroundColor());
   }
 
+  /**
+   * 重新绘制插入符号区域
+   * @param e
+   */
   private void repaintCaretRegion(@NotNull CaretEvent e) {
     CaretImpl caretImpl = (CaretImpl)e.getCaret();
     if (caretImpl != null) {
@@ -1077,22 +1607,32 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
 
     myPanel.add(myHeaderPanel, BorderLayout.NORTH);
 
+    // 装订线设置不透明
     myGutterComponent.setOpaque(true);
 
+    // 滚动面板设置窗口视图
     myScrollPane.setViewportView(myEditorComponent);
+    // 设置边框
     //myScrollPane.setBorder(null);
+    // 设置垂直滚动条策略，总是显示
     myScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    // 设置水平滚动条策略， 根据需要显示
     myScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
+    // 设置行标题视图， 是装订线组件
     myScrollPane.setRowHeaderView(myGutterComponent);
 
+    // 滚动模型初始化监听
     myScrollingModel.initListeners();
 
+    // 编辑器组件设置 设置传输处理程序，
     myEditorComponent.setTransferHandler(new MyTransferHandler());
-    myEditorComponent.setAutoscrolls(false); // we have our own auto-scrolling code
+    // 设置自动滚动
+    myEditorComponent.setAutoscrolls(false); // we have our own auto-scrolling code  我们有自己的自动滚动代码
 
     if (mayShowToolbar()) {
       JLayeredPane layeredPane = new JBLayeredPane() {
+        // 除滚动面板外都，空出工具栏的高度
         @Override
         public void doLayout() {
           final Component[] components = getComponents();
@@ -1205,6 +1745,10 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     });
   }
 
+  /**
+   * 是否可以显示工具栏
+   * @return
+   */
   private boolean mayShowToolbar() {
     return !isEmbeddedIntoDialogWrapper() && !isOneLineMode() && !DiffUtil.isDiffEditor(this) && isFileEditor();
   }
@@ -1511,6 +2055,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     return visualToLogicalPosition(xyToVisualPosition(pp));
   }
 
+  /**
+   * 逻辑到视觉线
+   * @param logicalLine
+   * @return
+   */
   private int logicalToVisualLine(int logicalLine) {
     return logicalLine < myDocument.getLineCount() ? offsetToVisualLine(myDocument.getLineStartOffset(logicalLine)) :
            logicalToVisualPosition(new LogicalPosition(logicalLine, 0)).line;
@@ -1566,6 +2115,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     return myView.visualLineToYRange(visualLine);
   }
 
+  /**
+   * 重画，重绘
+   * @param startOffset
+   * @param endOffset
+   */
   @Override
   public void repaint(int startOffset, int endOffset) {
     repaint(startOffset, endOffset, true);
@@ -1576,6 +2130,12 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     ContainerUtil.add(listener, myHighlighterListeners, parentDisposable);
   }
 
+  /**
+   * 重绘
+   * @param startOffset
+   * @param endOffset
+   * @param invalidateTextLayout 使文本布局无效
+   */
   void repaint(int startOffset, int endOffset, boolean invalidateTextLayout) {
     if (myDocument.isInBulkUpdate() || myInlayModel.isInBatchMode()) {
       return;
@@ -1626,6 +2186,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   }
 
   /**
+   * 重新绘制行
    * Asks to repaint all logical lines from the given {@code [start; end]} range.
    *
    * @param startLine start logical line to repaint (inclusive)
@@ -1634,6 +2195,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   void repaintLines(int startLine, int endLine) {
     if (!isShowing()) return;
 
+    //
     int startVisualLine = logicalToVisualLine(startLine);
     int endVisualLine = myDocument.getTextLength() <= 0
                         ? 0
@@ -1642,12 +2204,14 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   }
 
   /**
+   * 在提供的范围内重新绘制视线
    * Repaints visual lines in provided range (inclusive on both ends)
    */
   private void doRepaint(int startVisualLine, int endVisualLine) {
     Rectangle visibleArea = getScrollingModel().getVisibleArea();
     int yStart = visualLineToY(startVisualLine);
     int height = visualLineToYRange(endVisualLine)[1] + 2 - yStart;
+    // 重绘编辑器组件
     myEditorComponent.repaintEditorComponent(visibleArea.x, yStart, visibleArea.x + visibleArea.width, height);
     myGutterComponent.repaint(0, yStart, myGutterComponent.getWidth(), height);
   }
@@ -1762,6 +2326,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     }
   }
 
+  /**
+   * 逃生天沟可达线  -- 机器翻译， 我看不懂了。。
+   * @param offsetStart
+   * @param offsetEnd
+   */
   private void escapeGutterAccessibleLine(int offsetStart, int offsetEnd) {
     int startVisLine = offsetToVisualLine(offsetStart);
     int endVisLine = offsetToVisualLine(offsetEnd);
@@ -2137,6 +2706,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
            + (myView == null ? "" : "\nview: " + myView.dumpState());
   }
 
+  /**
+   * 获取插入符号位置
+   * @param onlyIfShown
+   * @return
+   */
   public CaretRectangle @Nullable [] getCaretLocations(boolean onlyIfShown) {
     return myCaretCursor.getCaretLocations(onlyIfShown);
   }
@@ -2286,6 +2860,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     return getDocument().getLineCount() - myFoldingModel.getTotalNumberOfFoldedLines();
   }
 
+  /**
+   * 逻辑到视觉位置
+   * @param logicalPos the logical position.
+   * @return
+   */
   @Override
   public @NotNull VisualPosition logicalToVisualPosition(@NotNull LogicalPosition logicalPos) {
     return myView.logicalToVisualPosition(logicalPos, false);
@@ -2782,12 +3361,27 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     myCurrentDragIsSubstantial = true;
   }
 
+  /**
+   * 重绘光标命令， 一个独立的线程用来绘制光标
+   */
   private static class RepaintCursorCommand implements Runnable {
+    /**
+     * 光标休眠时间
+     */
     private long mySleepTime = 500;
+    /**
+     * 光标是否闪烁
+     */
     private boolean myIsBlinkCaret = true;
     private @Nullable EditorImpl myEditor;
+    /**
+     * 声明了一个线程
+     */
     private ScheduledFuture<?> mySchedulerHandle;
 
+    /**
+     * 线程执行内容， 估计是开始绘制光标
+     */
     public void start() {
       if (mySchedulerHandle != null) {
         mySchedulerHandle.cancel(false);
@@ -2942,11 +3536,26 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     }
   }
 
+  /**
+   * 插入符号光标类
+   */
   final class CaretCursor {
+    /**
+     * 光标位置
+     */
     private CaretRectangle[] myLocations;
+    /**
+     * 是否可用
+     */
     private boolean myEnabled;
-
+    /**
+     * 是否显示
+     */
     private boolean myIsShown;
+    /**
+     * 开始时间
+     * 每次更改位置的时候，都会更新时间，用来控制光标的闪烁
+     */
     private long myStartTime;
 
     private CaretCursor() {
@@ -2980,27 +3589,45 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
       }
     }
 
+    /**
+     * 钝化
+     */
     private void passivate() {
       synchronized (ourCaretBlinkingCommand) {
         myIsShown = false;
       }
     }
 
+    /**
+     * 设置位置
+     * @param locations
+     */
     private void setPositions(CaretRectangle @NotNull [] locations) {
       myStartTime = System.currentTimeMillis();
       myLocations = locations;
     }
 
+    /**
+     * 重新绘制
+     */
     private void repaint() {
       myView.repaintCarets();
     }
 
+    /**
+     * 获取插入符号位置
+     * @param onlyIfShown
+     * @return
+     */
     CaretRectangle @Nullable [] getCaretLocations(boolean onlyIfShown) {
       if (onlyIfShown && (!isEnabled() || !myIsShown || isRendererMode() || !IJSwingUtilities.hasFocus(getContentComponent()))) return null;
       return myLocations;
     }
   }
 
+  /**
+   * 滚动计时器
+   */
   private class ScrollingTimer {
     private Timer myTimer;
     private static final int CYCLE_SIZE = 20;
@@ -3549,6 +4176,10 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     myDropHandler = dropHandler;
   }
 
+  /**
+   * 设置突出显示谓词
+   * @param filter
+   */
   public void setHighlightingPredicate(@Nullable Predicate<? super RangeHighlighter> filter) {
     if (myHighlightingFilter == filter) return;
     Predicate<? super RangeHighlighter> oldFilter = myHighlightingFilter;
@@ -4425,6 +5056,11 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     myUseEditorAntialiasing = value;
   }
 
+  /**
+   * 创建编辑器鼠标监听事件
+   * @param e
+   * @return
+   */
   private @NotNull EditorMouseEvent createEditorMouseEvent(@NotNull MouseEvent e) {
     Point point = e.getPoint();
     EditorMouseEventArea area = getMouseEventArea(e);
@@ -4513,6 +5149,9 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
     }
   }
 
+  /**
+   * 我的配色方案委托
+   */
   private final class MyColorSchemeDelegate extends DelegateColorScheme {
     private static final float FONT_SIZE_TO_IGNORE = -1f;
     private final FontPreferencesImpl myFontPreferences = new FontPreferencesImpl();

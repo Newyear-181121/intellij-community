@@ -42,10 +42,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
+/**
+ * 编辑器工厂实现
+ */
 public class EditorFactoryImpl extends EditorFactory {
   private static final ExtensionPointName<EditorFactoryListener> EP = new ExtensionPointName<>("com.intellij.editorFactoryListener");
 
   private static final Logger LOG = Logger.getInstance(EditorFactoryImpl.class);
+  /**
+   * 编辑器事件 组 管理器
+   */
   private final EditorEventMulticasterImpl myEditorEventMulticaster = new EditorEventMulticasterImpl();
   private final EventDispatcher<EditorFactoryListener> myEditorFactoryEventDispatcher = EventDispatcher.create(EditorFactoryListener.class);
 
@@ -225,9 +231,11 @@ public class EditorFactoryImpl extends EditorFactory {
 
   private void postEditorCreation(@NotNull EditorImpl editor, @NotNull ClientEditorManager editorManager) {
     editorManager.editorCreated(editor);
+    // 注册各种监听器
     myEditorEventMulticaster.registerEditor(editor);
 
     EditorFactoryEvent event = new EditorFactoryEvent(this, editor);
+
     myEditorFactoryEventDispatcher.getMulticaster().editorCreated(event);
     EP.forEachExtensionSafe(it -> it.editorCreated(event));
 

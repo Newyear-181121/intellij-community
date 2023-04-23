@@ -23,6 +23,9 @@ import static com.intellij.openapi.util.NullableLazyValue.volatileLazyNullable;
 
 
 /**
+ * 文本属性 key
+ * <br/>
+ *
  * A type of item with a distinct highlighting in an editor or in other views.
  * Use one of {@link #createTextAttributesKey(String)} {@link #createTextAttributesKey(String, TextAttributesKey)}
  * to create a new key, fallbacks will help to find colors in all colors schemes.

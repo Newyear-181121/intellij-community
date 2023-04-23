@@ -18,6 +18,9 @@ package com.intellij.openapi.editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import org.jetbrains.annotations.NonNls;
 
+/**
+ * 只读片段修改异常
+ */
 public class ReadOnlyFragmentModificationException extends RuntimeException {
   private final DocumentEvent myIllegalAttemptEvent;
   private final RangeMarker myGuardedBlock;

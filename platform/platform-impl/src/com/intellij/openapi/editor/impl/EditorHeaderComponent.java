@@ -11,6 +11,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
+ * 编辑器头部组件
  * @author gregsh
  */
 public class EditorHeaderComponent extends JPanel implements UISettingsListener {

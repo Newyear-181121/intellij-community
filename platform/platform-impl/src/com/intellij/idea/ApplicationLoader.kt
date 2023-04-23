@@ -334,6 +334,9 @@ internal fun createAppLocatorFile() {
   }
 }
 
+/**
+ * 添加激活和 Windows CLI 侦听器
+ */
 private fun addActivateAndWindowsCliListeners() {
   addExternalInstanceListener { rawArgs ->
     LOG.info("External instance command received")

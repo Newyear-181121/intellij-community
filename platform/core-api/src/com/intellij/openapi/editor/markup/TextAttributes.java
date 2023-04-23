@@ -30,6 +30,8 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /**
+ * 文本属性
+ * <br/>
  * Defines the visual representation (colors and effects) of text.
  */
 public class TextAttributes implements Cloneable {

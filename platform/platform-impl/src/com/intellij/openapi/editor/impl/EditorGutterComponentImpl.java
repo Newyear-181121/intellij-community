@@ -109,6 +109,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
+ * 编辑器排水沟组件实现
+ *
  * Gutter content (left to right):
  * <ul>
  *   <li>GAP_BETWEEN_AREAS</li>
@@ -156,6 +158,9 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
   private ClickInfo myLastActionableClick;
   @NotNull
   private final EditorImpl myEditor;
+  /**
+   * 折叠锚叠加策略
+   */
   private final FoldingAnchorsOverlayStrategy myAnchorDisplayStrategy;
   @Nullable private Int2ObjectMap<List<GutterMark>> myLineToGutterRenderers;
   private boolean myLineToGutterRenderersCacheForLogicalLines;
@@ -437,6 +442,10 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     });
   }
 
+  /**
+   * debug装订区域
+   * @param g
+   */
   private void debugGutterAreas(Graphics2D g) {
     if (!debug()) return;
     Point p = MouseInfo.getPointerInfo().getLocation();
@@ -509,6 +518,12 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     }
   }
 
+  /**
+   * 绘制注解
+   * @param g
+   * @param startVisualLine
+   * @param endVisualLine
+   */
   private void paintAnnotations(Graphics2D g, int startVisualLine, int endVisualLine) {
     int x = getAnnotationsAreaOffset();
     int w = getAnnotationsAreaWidthEx();
@@ -576,6 +591,14 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     }
   }
 
+  /**
+   * 绘制注解线
+   * @param g
+   * @param gutterProvider
+   * @param line
+   * @param x
+   * @param y
+   */
   private void paintAnnotationLine(Graphics g, TextAnnotationGutterProvider gutterProvider, int line, int x, int y) {
     String s = gutterProvider.getLineText(line, myEditor);
     if (!StringUtil.isEmpty(s)) {
@@ -596,18 +619,39 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     }
   }
 
+  /**
+   * 获取文本的字体
+   * @param text
+   * @param style
+   * @return
+   */
   private Font getFontForText(String text, EditorFontType style) {
     Font font = ExperimentalUI.isNewUI() ? JBFont.regular().deriveFont((float)myEditor.getFontSize())
                                          : myEditor.getColorsScheme().getFont(style);
     return UIUtil.getFontWithFallbackIfNeeded(font, text);
   }
 
+  /**
+   * 绘制折叠树
+   * @param g
+   * @param clip
+   * @param firstVisibleOffset
+   * @param lastVisibleOffset
+   */
   private void paintFoldingTree(@NotNull Graphics g, @NotNull Rectangle clip, int firstVisibleOffset, int lastVisibleOffset) {
     if (isFoldingOutlineShown()) {
       doPaintFoldingTree((Graphics2D)g, clip, firstVisibleOffset, lastVisibleOffset);
     }
   }
 
+  /**
+   * 绘制线标记
+   * @param g
+   * @param firstVisibleOffset
+   * @param lastVisibleOffset
+   * @param firstVisibleLine
+   * @param lastVisibleLine
+   */
   private void paintLineMarkers(Graphics2D g, int firstVisibleOffset, int lastVisibleOffset, int firstVisibleLine, int lastVisibleLine) {
     if (isLineMarkersShown()) {
       paintGutterRenderers(g, firstVisibleOffset, lastVisibleOffset, firstVisibleLine, lastVisibleLine);
@@ -708,6 +752,14 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     return FontLayoutService.getInstance().stringWidth(getFontMetrics(getFontForLineNumbers()), maxLineNumberText);
   }
 
+  /**
+   * 绘制 行号
+   * @param g
+   * @param startVisualLine
+   * @param endVisualLine
+   * @param offset
+   * @param converter  行号转换器
+   */
   private void doPaintLineNumbers(Graphics2D g, int startVisualLine, int endVisualLine, int offset,
                                   @NotNull LineNumberConverter converter) {
     int lastLine = myEditor.logicalToVisualPosition(
@@ -720,24 +772,31 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
 
     Color color = myEditor.getColorsScheme().getColor(EditorColors.LINE_NUMBERS_COLOR);
     Color colorUnderCaretRow = myEditor.getColorsScheme().getColor(EditorColors.LINE_NUMBER_ON_CARET_ROW_COLOR);
+    // 获取行号字体
     Font font = getFontForLineNumbers();
     g.setFont(font);
     int viewportStartY = myEditor.getScrollingModel().getVisibleArea().y;
 
     AffineTransform old = setMirrorTransformIfNeeded(g, getLineNumberAreaOffset(), getLineNumberAreaWidth());
     try {
+      // 插入符号逻辑线
       int caretLogicalLine = myEditor.getCaretModel().getLogicalPosition().line;
+      // 视觉线迭代器
       VisualLinesIterator visLinesIterator = new VisualLinesIterator(myEditor, startVisualLine);
       while (!visLinesIterator.atEnd() && visLinesIterator.getVisualLine() <= endVisualLine) {
         if (!visLinesIterator.isCustomFoldRegionLine() &&
             (!visLinesIterator.startsWithSoftWrap() || visLinesIterator.getY() <= viewportStartY)) {
           int logicalLine = visLinesIterator.getDisplayedLogicalLine();
+          /**
+           * 要显示的行
+           */
           String lineToDisplay = converter.convertLineNumberToString(myEditor, logicalLine + 1);
           if (lineToDisplay != null) {
             int y = visLinesIterator.getY();
             if (y < viewportStartY && visLinesIterator.endsWithSoftWrap()) {  // "sticky" line number
               y = viewportStartY;
             }
+            // 处于无干扰模式
             if (myEditor.isInDistractionFreeMode()) {
               Color fgColor = myTextFgColors.get(visLinesIterator.getVisualLine());
               g.setColor(fgColor != null ? fgColor : color != null ? color : JBColor.blue);
@@ -746,6 +805,7 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
               g.setColor(color);
             }
 
+            // 插入符号行下的颜色
             if (colorUnderCaretRow != null && caretLogicalLine == logicalLine) {
               g.setColor(colorUnderCaretRow);
             }
@@ -795,6 +855,10 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     }
   }
 
+  /**
+   * 结束行号
+   * @return
+   */
   private int endLineNumber() {
     return Math.max(0, myEditor.getDocument().getLineCount() - 1);
   }
@@ -1144,6 +1208,7 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
   private void paintGutterRenderers(final Graphics2D g,
                                     int firstVisibleOffset, int lastVisibleOffset, int firstVisibleLine, int lastVisibleLine) {
     Object hint = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+    // 设置渲染提示
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
     try {
       List<RangeHighlighter> highlighters = new ArrayList<>();
@@ -1217,6 +1282,13 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     }
   }
 
+  /**
+   * 绘制图标行
+   * @param visualLine
+   * @param lineY
+   * @param row
+   * @param g
+   */
   private void paintIconRow(int visualLine, int lineY, List<? extends GutterMark> row, final Graphics2D g) {
     processIconsRowForY(lineY, row, (x, y, renderer) -> {
       boolean isLoading = myLastActionableClick != null &&
@@ -1599,6 +1671,15 @@ final class EditorGutterComponentImpl extends EditorGutterComponentEx implements
     drawLine(g, false, centerX, centerY, width, sw);
   }
 
+  /**
+   * 画线
+   * @param g
+   * @param vertical
+   * @param centerX
+   * @param centerY
+   * @param width
+   * @param strokeWidth
+   */
   private void drawLine(Graphics2D g, boolean vertical, double centerX, double centerY, double width, double strokeWidth) {
     double length = width - getSquareInnerOffset(width) * 2;
     Line2D line = LinePainter2D.align(g,

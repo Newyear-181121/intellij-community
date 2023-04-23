@@ -3,6 +3,9 @@ package com.intellij.ui;
 
 import com.intellij.openapi.util.NlsSafe;
 
+/**
+ * 文本访问器
+ */
 public interface TextAccessor {
   void setText(String text);
 

@@ -29,6 +29,10 @@ public interface EditorHighlighter extends DocumentListener {
 
   void setEditor(@NotNull HighlighterClient editor);
 
+  /**
+   * 设置配色方案
+   * @param scheme
+   */
   default void setColorScheme(@NotNull EditorColorsScheme scheme) {
   }
 }

@@ -8,13 +8,30 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
+/**
+ * 编辑器的位置信息
+ * <br/>
+ * 这里的位置信息都是通过编辑器获取的， 也可以说是对编辑器内的位置信息包装一层。
+ */
 class EditorLocation {
   private final Editor myEditor;
   private final Point myPoint;
+  /**
+   * 视觉位置
+   */
   private VisualPosition myVisualPosition;
+  /**
+   * 逻辑位置
+   */
   private LogicalPosition myLogicalPosition;
   private int myOffset = -1;
+  /**
+   * 视觉行范围
+   */
   private int[] myVisualLineYRange;
+  /**
+   * 折叠区域
+   */
   private FoldRegion myCollapsedRegion = NO_REGION;
 
   EditorLocation(@NotNull Editor editor, @NotNull Point point) {
@@ -26,6 +43,10 @@ class EditorLocation {
     return myPoint;
   }
 
+  /**
+   * 获取视觉位置
+   * @return
+   */
   @NotNull VisualPosition getVisualPosition() {
     if (myVisualPosition == null) {
       myVisualPosition = myEditor.xyToVisualPosition(myPoint);
@@ -33,6 +54,10 @@ class EditorLocation {
     return myVisualPosition;
   }
 
+  /**
+   * 获取视觉行开始位置
+   * @return
+   */
   int getVisualLineStartY() {
     if (myVisualLineYRange == null) {
       myVisualLineYRange = myEditor.visualLineToYRange(getVisualPosition().line);
@@ -40,6 +65,10 @@ class EditorLocation {
     return myVisualLineYRange[0];
   }
 
+  /**
+   * 获取视觉行结束位置
+   * @return
+   */
   int getVisualLineEndY() {
     if (myVisualLineYRange == null) {
       myVisualLineYRange = myEditor.visualLineToYRange(getVisualPosition().line);
@@ -47,6 +76,10 @@ class EditorLocation {
     return myVisualLineYRange[1];
   }
 
+  /**
+   * 获取逻辑位置
+   * @return
+   */
   @NotNull LogicalPosition getLogicalPosition() {
     if (myLogicalPosition == null) {
       myLogicalPosition = myEditor.visualToLogicalPosition(getVisualPosition());
@@ -54,6 +87,10 @@ class EditorLocation {
     return myLogicalPosition;
   }
 
+  /**
+   * 获取偏移量
+   * @return
+   */
   int getOffset() {
     if (myOffset < 0) {
       myOffset = myEditor.logicalPositionToOffset(getLogicalPosition());
@@ -61,6 +98,10 @@ class EditorLocation {
     return myOffset;
   }
 
+  /**
+   * 获取折叠区域
+   * @return
+   */
   FoldRegion getCollapsedRegion() {
     if (myCollapsedRegion == NO_REGION) {
       myCollapsedRegion = myEditor.getFoldingModel().getCollapsedRegionAtOffset(getOffset());

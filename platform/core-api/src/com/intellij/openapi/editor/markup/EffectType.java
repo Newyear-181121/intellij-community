@@ -17,8 +17,17 @@ package com.intellij.openapi.editor.markup;
 
 import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * 效果类型， 文字效果类型
+ */
 public enum EffectType {
+  /**
+   * 直线下划线
+   */
   LINE_UNDERSCORE,
+  /**
+   * 波浪下划线
+   */
   WAVE_UNDERSCORE,
   BOXED,
   STRIKEOUT,

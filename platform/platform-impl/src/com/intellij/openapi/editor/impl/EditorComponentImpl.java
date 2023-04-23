@@ -12,6 +12,7 @@ import com.intellij.ide.ui.UISettingsUtils;
 import com.intellij.internal.inspector.PropertyBean;
 import com.intellij.internal.inspector.UiInspectorPreciseContextProvider;
 import com.intellij.internal.inspector.UiInspectorUtil;
+import com.intellij.idea.StartUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
@@ -74,6 +75,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 编辑器组件实现
+ */
 @DirtyUI
 public class EditorComponentImpl extends JTextComponent implements Scrollable, DataProvider, Queryable, TypingTarget, Accessible,
                                                                    UISettingsListener, UiInspectorPreciseContextProvider {
@@ -82,6 +86,7 @@ public class EditorComponentImpl extends JTextComponent implements Scrollable, D
   private final EditorImpl myEditor;
 
   public EditorComponentImpl(@NotNull EditorImpl editor) {
+    StartUtils.log("编辑器组件初始化！");
     myEditor = editor;
     enableEvents(AWTEvent.KEY_EVENT_MASK | AWTEvent.INPUT_METHOD_EVENT_MASK);
     enableInputMethods(true);
@@ -152,28 +157,36 @@ public class EditorComponentImpl extends JTextComponent implements Scrollable, D
   public Object getData(@NotNull String dataId) {
     if (myEditor.isDisposed()) return null;
 
+    // 复制进程
     if (PlatformDataKeys.COPY_PROVIDER.is(dataId)) {
       // enable copying from editor in renderer mode
       return myEditor.getCopyProvider();
     }
 
+    // 编辑器是渲染器模式
     if (myEditor.isRendererMode()) return null;
 
+    // 编辑器
     if (CommonDataKeys.EDITOR.is(dataId)) {
       return myEditor;
     }
+    // 插入符号
     if (CommonDataKeys.CARET.is(dataId)) {
       return myEditor.getCaretModel().getCurrentCaret();
     }
+    // 删除元素进程
     if (PlatformDataKeys.DELETE_ELEMENT_PROVIDER.is(dataId)) {
       return myEditor.getDeleteProvider();
     }
+    // 剪切进程
     if (PlatformDataKeys.CUT_PROVIDER.is(dataId)) {
       return myEditor.getCutProvider();
     }
+    // 粘贴进程
     if (PlatformDataKeys.PASTE_PROVIDER.is(dataId)) {
       return myEditor.getPasteProvider();
     }
+    // 编辑器虚拟空格
     if (CommonDataKeys.EDITOR_VIRTUAL_SPACE.is(dataId)) {
       LogicalPosition location = myEditor.myLastMousePressedLocation;
       if (location == null) {
@@ -202,6 +215,10 @@ public class EditorComponentImpl extends JTextComponent implements Scrollable, D
     return myEditor.getPreferredSize();
   }
 
+  /**
+   * 设置光标
+   * @param cursor
+   */
   @Override
   public void setCursor(Cursor cursor) {
     super.setCursor(cursor);
@@ -284,6 +301,13 @@ public class EditorComponentImpl extends JTextComponent implements Scrollable, D
     }
   }
 
+  /**
+   * 重绘编辑器组件
+   * @param x
+   * @param y
+   * @param width
+   * @param height
+   */
   public void repaintEditorComponent(int x, int y, int width, int height) {
     int topOverhang = Math.max(0, myEditor.myView.getTopOverhang());
     int bottomOverhang = Math.max(0, myEditor.myView.getBottomOverhang());

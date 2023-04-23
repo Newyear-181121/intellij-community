@@ -9,7 +9,10 @@
         <list />
       </option>
       <option name="taskNames">
-        <list />
+        <list>
+          <option value="publishIdeArtifacts" />
+          <option value=":prepare:ide-plugin-dependencies:kotlin-dist-for-ide:publish" />
+        </list>
       </option>
       <option name="vmOptions" value="" />
     </ExternalSystemSettings>

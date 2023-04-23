@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.IntUnaryOperator;
 
 /**
+ * 行号转换器适配器
  * Adapter for migrating from obsolete removed API
  * {@code EditorGutterComponentEx#setLineNumberConvertor(TIntFunction lineNumberConvertor)} to
  * {@link EditorGutter#setLineNumberConverter(LineNumberConverter)} and

@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.function.IntFunction;
 
 /**
+ * 编辑器行绘制器
+ * <br/>
  * An implementation of this extension point can draw additional text fragments
  * after the end of a line in a file editor.
  * <p>

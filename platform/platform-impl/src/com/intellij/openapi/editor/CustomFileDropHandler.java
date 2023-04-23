@@ -22,6 +22,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.datatransfer.Transferable;
 
+/**
+ * 自定义文档投递处理器
+ */
 public abstract class CustomFileDropHandler {
   public static final ExtensionPointName<CustomFileDropHandler> CUSTOM_DROP_HANDLER_EP =
     ExtensionPointName.create("com.intellij.customFileDropHandler");

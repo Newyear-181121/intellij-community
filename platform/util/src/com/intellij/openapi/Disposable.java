@@ -5,6 +5,8 @@ import com.intellij.openapi.util.Disposer;
 
 /**
  * A marker for classes that require some work done for cleaning up.
+ * 此类标记需要完成一些清理工作的类
+ * <p>
  * To do that,
  * <ul>
  * <li>implement this interface. Please avoid using lambdas or method references because each Disposable instance needs identity to be stored in the Disposer hierarchy correctly</li>
@@ -30,6 +32,7 @@ import com.intellij.openapi.util.Disposer;
 @SuppressWarnings("InterfaceMayBeAnnotatedFunctional") // do not use lambda as a Disposable implementation, because each Disposable instance needs identity to be stored in Disposer hierarchy correctly
 public interface Disposable {
   /**
+   * 处理，通常不直接调用<p>
    * Usually not invoked directly, see class javadoc.
    */
   void dispose();

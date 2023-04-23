@@ -24,6 +24,7 @@ import java.awt.*;
 import java.util.List;
 
 /**
+ * 演示数据
  * Default implementation of the {@link ItemPresentation} interface.
  */
 

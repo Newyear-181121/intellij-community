@@ -32,6 +32,8 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
+ * 单行文档文本的布局。由一系列 BidiRuns 组成，而 BidiRuns 又由 TextFragment 组成。
+ * 出于性能原因，BidiRun 中的 TextFragment 被分组为块，字形布局是按块执行的，并且仅用于所需的块。
  * Layout of a single line of document text. Consists of a series of BidiRuns, which, in turn, consist of TextFragments.
  * TextFragments within BidiRun are grouped into Chunks for performance reasons, glyph layout is performed per-Chunk, and only
  * for required Chunks.

@@ -57,6 +57,9 @@ import java.util.Arrays;
 import java.util.List;
 
 
+/**
+ * 核心应用环境
+ */
 public class CoreApplicationEnvironment {
   private final CoreFileTypeRegistry myFileTypeRegistry;
   protected final MockApplication myApplication;

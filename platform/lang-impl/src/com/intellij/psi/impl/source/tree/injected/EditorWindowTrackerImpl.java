@@ -52,6 +52,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.IntFunction;
 
+/**
+ * 编辑器窗口跟踪器实现
+ */
 public final class EditorWindowTrackerImpl extends EditorWindowTracker {
   private final Collection<EditorWindowImpl> allEditors = new UnsafeWeakList<>(); // guarded by allEditors
 

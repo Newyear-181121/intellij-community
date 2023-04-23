@@ -33,6 +33,10 @@ public class EditorFilteringMarkupModelEx implements MarkupModelEx {
     myDelegate = delegate;
   }
 
+  /**
+   * 获得代表
+   * @return
+   */
   @NotNull
   public MarkupModelEx getDelegate() {
     return myDelegate;

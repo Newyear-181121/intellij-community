@@ -36,8 +36,11 @@ import java.util.List;
 import static com.intellij.openapi.editor.richcopy.SyntaxInfoBuilder.createMarkupIterator;
 
 /**
+ * 带有标记处理器的文本
+ * 生成带有标记的文本（RTF 和 HTML 格式），以便通过剪贴板与第三方应用程序进行交互。
  * Generates text with markup (in RTF and HTML formats) for interaction via clipboard with third-party applications.
  * <p>
+ *   测试了与以下应用程序的互操作性：
  * Interoperability with the following applications was tested:
  * MS Office 2010 (Word, PowerPoint, Outlook), OpenOffice (Writer, Impress), Gmail, Mac TextEdit, Mac Mail, Mac Keynote.
  */
@@ -73,6 +76,7 @@ public class TextWithMarkupProcessor extends CopyPastePostProcessor<RawTextWithM
       }
       logInitial(editor, startOffsets, endOffsets, indentSymbolsToStrip, firstLineStartOffset);
       CharSequence text = editor.getDocument().getCharsSequence();
+      // 获取编辑器的 高亮显示器
       highlighter = editor.getHighlighter();
       if (editorColorsScheme != schemeToUse) {
         highlighter.setColorScheme(schemeToUse);
@@ -105,6 +109,7 @@ public class TextWithMarkupProcessor extends CopyPastePostProcessor<RawTextWithM
         if (endOffset <= startOffsetToUse) {
           continue;
         }
+        // 创建标记迭代器
         MyMarkupIterator markupIterator = createMarkupIterator(highlighter, text, schemeToUse, markupModel, startOffsetToUse, endOffset);
         try {
           context.iterate(markupIterator, endOffset);

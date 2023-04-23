@@ -127,6 +127,12 @@ public final class Strings {
   }
 
 
+  /**
+   * 字符串是否包含指定字符
+   * @param value
+   * @param ch
+   * @return
+   */
   @Contract(pure = true)
   public static boolean containsChar(final @NotNull String value, final char ch) {
     return value.indexOf(ch) >= 0;

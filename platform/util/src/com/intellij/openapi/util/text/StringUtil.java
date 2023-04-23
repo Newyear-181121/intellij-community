@@ -1842,6 +1842,12 @@ public class StringUtil extends StringUtilRt {
     return Strings.indexOfAny(s, chars);
   }
 
+  /**
+   * 字符串是否包含 chars 中的任何一个字符
+   * @param s
+   * @param chars
+   * @return 第一次出现的索引位置
+   */
   @Contract(pure = true)
   public static int indexOfAny(@NotNull CharSequence s, @NotNull String chars) {
     return Strings.indexOfAny(s, chars);
@@ -2709,6 +2715,11 @@ public class StringUtil extends StringUtilRt {
     return true;
   }
 
+  /**
+   * 发现分离器， 获取文本的行分隔符类型
+   * @param text 文本内容
+   * @return 分隔符类型
+   */
   public static @Nullable LineSeparator detectSeparators(@NotNull CharSequence text) {
     int index = indexOfAny(text, "\n\r");
     if (index == -1) return null;
@@ -2719,6 +2730,12 @@ public class StringUtil extends StringUtilRt {
     return lineSeparator;
   }
 
+  /**
+   * 获取文本的行标识符
+   * @param text 文本内容
+   * @param index 标识符开始位置
+   * @return 行标识类型
+   */
   public static @Nullable LineSeparator getLineSeparatorAt(@NotNull CharSequence text, int index) {
     if (index < 0 || index >= text.length()) {
       return null;
@@ -2730,6 +2747,11 @@ public class StringUtil extends StringUtilRt {
     return ch == '\n' ? LineSeparator.LF : null;
   }
 
+  /**
+   * 转换换行符
+   * @param text
+   * @return
+   */
   @Contract(pure = true)
   public static @NotNull String convertLineSeparators(@NotNull String text) {
     return Strings.convertLineSeparators(text);

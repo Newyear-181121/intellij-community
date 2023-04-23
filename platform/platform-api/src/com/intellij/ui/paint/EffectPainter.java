@@ -6,12 +6,17 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 
+/**
+ * 效果画家
+ */
 public enum EffectPainter implements RegionPainter<Font> {
   /**
    * @see com.intellij.openapi.editor.markup.EffectType#LINE_UNDERSCORE
    */
   LINE_UNDERSCORE {
     /**
+     * 下划线
+     * 在文本下方绘制一条水平线。
      * Draws a horizontal line under a text.
      *
      * @param g      the {@code Graphics2D} object to render to
@@ -31,6 +36,7 @@ public enum EffectPainter implements RegionPainter<Font> {
    */
   BOLD_LINE_UNDERSCORE {
     /**
+     * 在文本下方绘制一条粗体水平线。
      * Draws a bold horizontal line under a text.
      *
      * @param g      the {@code Graphics2D} object to render to
@@ -50,6 +56,7 @@ public enum EffectPainter implements RegionPainter<Font> {
    */
   BOLD_DOTTED_UNDERSCORE {
     /**
+     * 在文本下方绘制一条粗体水平的点线。
      * Draws a bold horizontal line of dots under a text.
      *
      * @param g      the {@code Graphics2D} object to render to
@@ -69,6 +76,7 @@ public enum EffectPainter implements RegionPainter<Font> {
    */
   WAVE_UNDERSCORE {
     /**
+     * 在文本下绘制水平波浪。
      * Draws a horizontal wave under a text.
      *
      * @param g      the {@code Graphics2D} object to render to
@@ -88,6 +96,7 @@ public enum EffectPainter implements RegionPainter<Font> {
    */
   STRIKE_THROUGH {
     /**
+     * 通过文本绘制一条水平线。
      * Draws a horizontal line through a text.
      *
      * @param g      the {@code Graphics2D} object to render to

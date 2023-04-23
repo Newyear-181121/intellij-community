@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
+ * 编辑器排水沟布局
  * @author Konstantin Bulenkov
  */
 public class EditorGutterLayout {

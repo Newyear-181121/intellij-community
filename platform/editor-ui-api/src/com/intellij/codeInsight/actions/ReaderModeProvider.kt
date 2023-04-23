@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 
 /**
+ * 阅读器模式提供程序
  * Use it to provide an activity that should be applied for editor in Read Mode
  */
 interface ReaderModeProvider {

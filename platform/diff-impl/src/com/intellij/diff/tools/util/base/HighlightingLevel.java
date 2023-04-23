@@ -16,6 +16,9 @@ import org.jetbrains.annotations.PropertyKey;
 import javax.swing.*;
 import java.util.function.Predicate;
 
+/**
+ * 高亮级别
+ */
 public enum HighlightingLevel {
   INSPECTIONS("option.highlighting.level.inspections", AllIcons.Ide.HectorOn, Predicates.alwaysTrue()),
 
