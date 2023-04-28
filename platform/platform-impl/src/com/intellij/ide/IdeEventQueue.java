@@ -10,7 +10,7 @@ import com.intellij.ide.dnd.DnDManager;
 import com.intellij.ide.dnd.DnDManagerImpl;
 import com.intellij.ide.plugins.StartupAbortedException;
 import com.intellij.ide.ui.UISettings;
-import com.intellij.idea.StartUtils;
+import ny.log.StartUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.*;
 import com.intellij.openapi.application.ex.ApplicationManagerEx;

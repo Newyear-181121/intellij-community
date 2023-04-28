@@ -82,6 +82,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.*;
 import com.intellij.util.ui.update.UiNotifyConnector;
 import kotlin.Unit;
+import ny.log.StartUtils;
 import org.intellij.lang.annotations.JdkConstants;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.*;
@@ -1211,7 +1212,7 @@ public final class EditorImpl extends UserDataHolderBase implements EditorEx, Hi
   private void moveCaretIntoViewIfCoveredByToolWindowBelow(@NotNull VisibleAreaEvent e) {
     ReadAction.run(() -> {
       StartUtils.log("编辑器的滚动模型记录");
-    Rectangle oldRectangle = e.getOldRectangle();
+      Rectangle oldRectangle = e.getOldRectangle();
       Rectangle newRectangle = e.getNewRectangle();
       if (!myScrollingToCaret &&
           oldRectangle != null &&

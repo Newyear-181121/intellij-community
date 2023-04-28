@@ -79,6 +79,9 @@ import java.util.Queue;
 import java.util.*;
 import java.util.function.Supplier;
 
+/**
+ * 编辑器标记模型实现
+ */
 public final class EditorMarkupModelImpl extends MarkupModelImpl
       implements EditorMarkupModel, CaretListener, BulkAwareDocumentListener.Simple, VisibleAreaListener {
   private static final TooltipGroup ERROR_STRIPE_TOOLTIP_GROUP = new TooltipGroup("ERROR_STRIPE_TOOLTIP_GROUP", 0);

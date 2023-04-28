@@ -15,6 +15,9 @@ import java.awt.*;
  */
 class EditorLocation {
   private final Editor myEditor;
+  /**
+   * 光标位置
+   */
   private final Point myPoint;
   /**
    * 视觉位置
@@ -24,6 +27,9 @@ class EditorLocation {
    * 逻辑位置
    */
   private LogicalPosition myLogicalPosition;
+  /**
+   * 偏移量
+   */
   private int myOffset = -1;
   /**
    * 视觉行范围

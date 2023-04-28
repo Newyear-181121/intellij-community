@@ -12,7 +12,7 @@ import com.intellij.ide.ui.UISettingsUtils;
 import com.intellij.internal.inspector.PropertyBean;
 import com.intellij.internal.inspector.UiInspectorPreciseContextProvider;
 import com.intellij.internal.inspector.UiInspectorUtil;
-import com.intellij.idea.StartUtils;
+import ny.log.StartUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;

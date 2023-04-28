@@ -2,6 +2,7 @@
 package com.intellij.openapi.application.impl;
 
 import com.intellij.CommonBundle;
+import ny.log.StartUtils;
 import com.intellij.codeWithMe.ClientId;
 import com.intellij.configurationStore.StoreUtil;
 import com.intellij.diagnostic.*;
@@ -147,7 +148,7 @@ public class ApplicationImpl extends ClientAwareComponentManager implements Appl
 
     myLock = lockHolder.getLock$intellij_platform_ide_impl();
 
-    StartUtils.log(true, "声明 ApplicationImpl, 参数是：", isInternal, isHeadless, isCommandLine, edtThread);
+    StartUtils.log(true, "声明 ApplicationImpl, 参数是：", isInternal, isHeadless, isCommandLine, lockHolder);
 
     registerFakeServices(this);
 

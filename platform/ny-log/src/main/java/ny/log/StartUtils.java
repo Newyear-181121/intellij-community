@@ -1,5 +1,5 @@
-// Copyright 2000-2022 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
-package com.intellij.idea;
+// Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license.
+package ny.log;
 
 import java.util.*;
 
@@ -22,21 +22,16 @@ public class StartUtils {
   }
 
   public static void log(String msg) {
-    key++;
-    stackTraces.put(new Key(key, msg), Thread.currentThread().getStackTrace());
+    log(true, msg, null);
   }
 
   public static void log(String msg, Object ... str) {
-    key++;
-    stackTraces.put(new Key(key, msg, str), Thread.currentThread().getStackTrace());
+     log(true, msg, str);
   }
 
   public static void log(boolean out, String msg, Object ... str) {
-    if (str == null) {
-      log(msg);
-    } else {
-      log(msg, str);
-    }
+    key++;
+    stackTraces.put(new Key(key, msg, str), Thread.currentThread().getStackTrace());
     if (out) {
       outEnd();
     }
@@ -57,6 +52,9 @@ public class StartUtils {
     }
   }
 
+  /**
+   * 打印最后一个日志， key 从 1开始， 1-n
+   */
   public static void outEnd() {
     out(stackTraces.size());
   }
@@ -95,5 +93,24 @@ public class StartUtils {
              ", strs=" + strs +
              '}';
     }
+  }
+
+  /**
+   * 获取堆栈信息
+   * @param current 是否打印当前行
+   * @return
+   */
+  public static String getStackTrace(boolean current) {
+    StackTraceElement[] elements = Thread.currentThread().getStackTrace();
+    StringBuilder sb = new StringBuilder();
+    // 从一开始，应该就是不打印这个方法本身了
+    for (int i = current ? 0 : 2; i < elements.length; i++) {
+      StackTraceElement s = elements[i];
+      sb.append(s.getClassName()).append(".")
+        .append(s.getMethodName()).append("(")
+        .append(s.getFileName()).append(":")
+        .append(s.getLineNumber()).append(")").append("\n");
+    }
+    return sb.toString();
   }
 }

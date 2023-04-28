@@ -22,7 +22,7 @@ import com.intellij.ide.OccurenceNavigator;
 import com.intellij.ide.plugins.DynamicPluginListener;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.startup.StartupManagerEx;
-import com.intellij.idea.StartUtils;
+import com.intellij.StartUtils;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
