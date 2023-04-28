@@ -1301,6 +1301,7 @@
       <module fileurl="file://$PROJECT_DIR$/plugins/kotlin/util/test-generator-fe10/kotlin.util.test-generator-fe10.iml" filepath="$PROJECT_DIR$/plugins/kotlin/util/test-generator-fe10/kotlin.util.test-generator-fe10.iml" />
       <module fileurl="file://$PROJECT_DIR$/plugins/kotlin/util/test-generator-fir/kotlin.util.test-generator-fir.iml" filepath="$PROJECT_DIR$/plugins/kotlin/util/test-generator-fir/kotlin.util.test-generator-fir.iml" />
       <module fileurl="file://$PROJECT_DIR$/ny-log.iml" filepath="$PROJECT_DIR$/ny-log.iml" />
+      <module fileurl="file://$PROJECT_DIR$/platform/ny-log/ny-log1.iml" filepath="$PROJECT_DIR$/platform/ny-log/ny-log1.iml" />
     </modules>
   </component>
 </project>
