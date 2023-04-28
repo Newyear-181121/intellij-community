@@ -27,6 +27,16 @@
       <entry name="!*.iml" />
       <entry name="!*.gant" />
     </wildcardResourcePatterns>
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="ny-log" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="EclipseCompilerSettings">
     <option name="GENERATE_NO_WARNINGS" value="true" />
@@ -48,6 +58,7 @@
       <module name="intellij.platform.lang.impl" options="-Xlint:unchecked --add-exports java.desktop/sun.awt.image=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED" />
       <module name="intellij.platform.testFramework.common" options="-Xlint:unchecked --add-exports java.desktop/sun.awt=ALL-UNNAMED" />
       <module name="intellij.platform.util.ui" options="-Xlint:unchecked --add-exports java.desktop/sun.font=ALL-UNNAMED" />
+      <module name="ny-log" options="" />
     </option>
     <option name="MAXIMUM_HEAP_SIZE" value="400" />
   </component>
