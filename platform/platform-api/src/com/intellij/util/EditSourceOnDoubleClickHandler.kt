@@ -25,6 +25,9 @@ import javax.swing.tree.TreePath
 object EditSourceOnDoubleClickHandler {
   val INSTALLED: Key<Boolean> = Key.create("EditSourceOnDoubleClickHandlerInstalled")
 
+  /**
+   * 猜测: 初始化的时候, 左侧树形文件管理器,监听初始化接口
+   */
   @JvmOverloads
   @JvmStatic
   fun install(tree: JTree, whenPerformed: Runnable? = null) {

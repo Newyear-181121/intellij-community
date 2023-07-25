@@ -47,6 +47,9 @@ import java.util.StringTokenizer;
 
 import static com.intellij.ide.projectView.ProjectViewSelectionTopicKt.PROJECT_VIEW_SELECTION_TOPIC;
 
+/**
+ * 树结构处理类
+ */
 public abstract class AbstractProjectViewPaneWithAsyncSupport extends AbstractProjectViewPane {
   private AsyncProjectViewSupport myAsyncSupport;
   private JComponent myComponent;
