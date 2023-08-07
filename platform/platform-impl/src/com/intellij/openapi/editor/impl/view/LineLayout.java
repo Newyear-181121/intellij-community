@@ -766,6 +766,10 @@ abstract class LineLayout {
       return myFragmentIndex < chunk.fragments.size();
     }
 
+    /**
+     * 下一个文本碎片内容
+     * @return
+     */
     @Override
     public VisualFragment next() {
       if (!hasNext()) {

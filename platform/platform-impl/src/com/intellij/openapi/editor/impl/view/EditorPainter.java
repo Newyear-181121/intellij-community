@@ -183,21 +183,32 @@ public final class EditorPainter implements TextDrawingCallback {
         return;
       }
 
+      // 绘制背景
       paintBackground();
+       //绘制 正确的 页边
       paintRightMargin();
+      // 绘制 自定义着色器
       paintCustomRenderers(myDocMarkup);
       paintCustomRenderers(myEditorMarkup);
+      // 绘制 行 分离器?? 这是什么
       paintLineMarkersSeparators(myDocMarkup);
       paintLineMarkersSeparators(myEditorMarkup);
+      // 绘制带效果的文本
       paintTextWithEffects();
+      // 在 行处理后 绘制高亮显示器
       paintHighlightersAfterEndOfLine(myDocMarkup);
       paintHighlightersAfterEndOfLine(myEditorMarkup);
+      // 绘制边缘效果
       paintBorderEffect(myEditor.getHighlighter());
       paintBorderEffect(myDocMarkup);
       paintBorderEffect(myEditorMarkup);
+      // 绘制前景 自定义 着色器
       paintForegroundCustomRenderers();
+      // 绘制镶嵌块
       paintBlockInlays();
+      // 绘制 光标
       paintCaret();
+      // 绘制稳定的文本着色器
       paintComposedTextDecoration();
 
       myGraphics.translate(0, myYShift);
@@ -300,9 +311,15 @@ public final class EditorPainter implements TextDrawingCallback {
       return EditorPainter.isMarginShown(myEditor);
     }
 
+    /**
+     * 绘制背景, 看看它是怎么处理背景的
+     */
     private void paintBackground() {
+      // 通过方法获取 行数
       int lineCount = myEditor.getVisibleLineCount();
+      // 计算页面宽度
       boolean calculateMarginWidths = Registry.is("editor.adjust.right.margin") && isMarginShown() && myStartVisualLine < lineCount;
+      // 保存记录,页变位置
       myMarginPositions = calculateMarginWidths ? new MarginPositions(Math.min(myEndVisualLine, lineCount - 1) - myStartVisualLine + 2)
                                                 : null;
       final LineWhitespacePaintingStrategy whitespacePaintingStrategy = new LineWhitespacePaintingStrategy(myEditor.getSettings());
@@ -1443,6 +1460,7 @@ public final class EditorPainter implements TextDrawingCallback {
       int maxColumn = 0;
       int endLogicalLine = visLineIterator.getEndLogicalLine();
       boolean marginReached = false;
+      // 在这里位 创建 行碎片
       for (VisualLineFragmentsIterator.Fragment fragment : VisualLineFragmentsIterator.create(myView, visLineIterator, null, true)) {
         int fragmentStartOffset = fragment.getStartOffset();
         int start = fragmentStartOffset;
